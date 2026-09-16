@@ -2,11 +2,11 @@
 
 namespace App\Listeners;
 
-
 use App\Events\ReservationCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Jobs\SendReservationCreatedEmail;
+
 
 class SendReservationCreatedNotification
 {
@@ -23,8 +23,6 @@ class SendReservationCreatedNotification
      */
     public function handle(ReservationCreated $event): void
     {
-        SendReservationCreatedEmail::dispatch(
-            $event->reservation
-        );
+        SendReservationCreatedEmail::dispatch($event->reservation);
     }
 }

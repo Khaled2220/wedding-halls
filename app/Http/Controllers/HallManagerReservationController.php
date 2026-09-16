@@ -11,17 +11,9 @@ class HallManagerReservationController extends Controller
     public function index()
     {
         $hallManager = Auth::user();
-
-        // Get halls belonging to this hall manager
         $hallIds = $hallManager->halls()->pluck('id');
-
-        // Today
         $startDate = Carbon::today();
-
-        // One year from today
         $endDate = Carbon::today()->addYear();
-
-        // Get reservations for this manager's halls
         $reservations = Reservation::with([
             'customer',
             'hall',
@@ -34,13 +26,10 @@ class HallManagerReservationController extends Controller
             ->orderBy('reservation_date')
             ->orderBy('start_time')
             ->get();
-
-        // Group reservations by date
         $reservationsByDate = $reservations->groupBy(function ($reservation) {
             return Carbon::parse($reservation->reservation_date)
                 ->format('Y-m-d');
         });
-
         return view(
             'hall-manager.reservations.index',
             compact(

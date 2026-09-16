@@ -15,7 +15,6 @@ class Food extends Model
         'hall_id',
         'price',
     ];
-
     protected $casts = [
         'price' => 'decimal:2',
     ];

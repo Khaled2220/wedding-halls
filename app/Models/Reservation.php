@@ -41,16 +41,14 @@ class Reservation extends Model
     public function hall(): BelongsTo
     {
         return $this->belongsTo(
-            Hall::class,
-            'hall_id'
+            Hall::class,'hall_id'
         );
     }
 
     public function payment(): HasOne
     {
         return $this->hasOne(
-            Payment::class,
-            'reservation_id'
+            Payment::class,'reservation_id'
         );
     }
 

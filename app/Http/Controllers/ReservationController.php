@@ -16,14 +16,6 @@ class ReservationController extends Controller
 {
     private const DEPOSIT_PERCENTAGE = 20;
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reservations List
-    |--------------------------------------------------------------------------
-    */
-
     public function index()
     {
         $reservations = Reservation::with([
@@ -34,20 +26,11 @@ class ReservationController extends Controller
             ->where('customer_id', auth()->id())
             ->latest()
             ->paginate(10);
-
         return view(
             'customer.reservations.index',
             compact('reservations')
         );
     }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Show Reservation Form
-    |--------------------------------------------------------------------------
-    */
 
     public function create(Hall $hall)
     {
@@ -55,12 +38,10 @@ class ReservationController extends Controller
             $hall->status === 'active',
             404
         );
-
         $hall->load([
             'foods.images',
             'sweetItems.images',
         ]);
-
         $bookedReservations = Reservation::where(
                 'hall_id',
                 $hall->id
@@ -78,7 +59,6 @@ class ReservationController extends Controller
                 'start_time',
                 'end_time',
             ]);
-
         return view(
             'customer.reservations.create',
             compact(
@@ -89,33 +69,14 @@ class ReservationController extends Controller
     }
 
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Store Reservation
-    |--------------------------------------------------------------------------
-    */
-
-    public function store(
-        StoreReservationRequest $request,
-        Hall $hall
-    ) {
+    public function store(StoreReservationRequest $request,Hall $hall) 
+    {
         abort_unless(
             $hall->status === 'active',
             404
         );
-
         $validated = $request->validated();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check Guests Capacity
-        |--------------------------------------------------------------------------
-        */
-
         if ($validated['guests'] > $hall->capacity) {
-
             return back()
                 ->withInput()
                 ->withErrors([
@@ -123,17 +84,7 @@ class ReservationController extends Controller
                         'The number of guests cannot exceed the hall capacity.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Selected Foods
-        |--------------------------------------------------------------------------
-        */
-
         $foodIds = $validated['food_ids'] ?? [];
-
         $foods = Food::whereIn(
                 'id',
                 $foodIds
@@ -143,9 +94,7 @@ class ReservationController extends Controller
                 $hall->id
             )
             ->get();
-
         if ($foods->count() !== count($foodIds)) {
-
             return back()
                 ->withInput()
                 ->withErrors([
@@ -153,17 +102,7 @@ class ReservationController extends Controller
                         'One or more selected food items are invalid.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Selected Sweets
-        |--------------------------------------------------------------------------
-        */
-
         $sweetIds = $validated['sweet_ids'] ?? [];
-
         $sweets = Sweet::whereIn(
                 'id',
                 $sweetIds
@@ -171,11 +110,9 @@ class ReservationController extends Controller
             ->where(
                 'hall_id',
                 $hall->id
-            )
-            ->get();
+            )->get();
 
         if ($sweets->count() !== count($sweetIds)) {
-
             return back()
                 ->withInput()
                 ->withErrors([
@@ -183,15 +120,6 @@ class ReservationController extends Controller
                         'One or more selected sweet items are invalid.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check Hall Availability
-        |--------------------------------------------------------------------------
-        */
-
         $alreadyBooked = Reservation::where(
                 'hall_id',
                 $hall->id
@@ -208,7 +136,6 @@ class ReservationController extends Controller
                 ]
             )
             ->where(function ($query) use ($validated) {
-
                 $query
                     ->where(
                         'start_time',
@@ -220,12 +147,9 @@ class ReservationController extends Controller
                         '>',
                         $validated['start_time']
                     );
-
-            })
-            ->exists();
+            })->exists();
 
         if ($alreadyBooked) {
-
             return back()
                 ->withInput()
                 ->withErrors([
@@ -233,56 +157,12 @@ class ReservationController extends Controller
                         'This hall is already reserved during the selected time.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Total Price
-        |--------------------------------------------------------------------------
-        */
-
         $hallPrice = (float) $hall->price;
-
-        $foodTotal = (float) $foods->sum(
-            fn ($food) =>
-                (float) $food->price
-        );
-
-        $sweetTotal = (float) $sweets->sum(
-            fn ($sweet) =>
-                (float) $sweet->price
-        );
-
-        $totalPrice = round(
-            $hallPrice +
-            $foodTotal +
-            $sweetTotal,
-            2
-        );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Deposit
-        |--------------------------------------------------------------------------
-        */
-
-        $depositAmount = round(
-            $totalPrice *
-            (self::DEPOSIT_PERCENTAGE / 100),
-            2
-        );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Create Reservation
-        |--------------------------------------------------------------------------
-        */
-
+        $foodTotal = (float) $foods->sum(fn ($food)=>(float)$food->price);
+        $sweetTotal = (float) $sweets->sum(fn ($sweet)=>(float)$sweet->price);
+        $totalPrice = round($hallPrice + $foodTotal + $sweetTotal,2);
+        $depositAmount = round($totalPrice *(self::DEPOSIT_PERCENTAGE / 100),2);
+       
         $reservation = DB::transaction(function () use (
             $validated,
             $hall,
@@ -291,100 +171,36 @@ class ReservationController extends Controller
             $totalPrice,
             $depositAmount
         ) {
-
             $reservation = Reservation::create([
-
-                'customer_id' =>
-                    auth()->id(),
-
-                'hall_id' =>
-                    $hall->id,
-
-                'reservation_date' =>
-                    $validated['reservation_date'],
-
-                'start_time' =>
-                    $validated['start_time'],
-
-                'end_time' =>
-                    $validated['end_time'],
-
-                'guests' =>
-                    $validated['guests'],
-
-                'total_price' =>
-                    $totalPrice,
-
-                'deposit_amount' =>
-                    $depositAmount,
-
-                'status' =>
-                    'pending',
-
+                'customer_id'=>auth()->id(),
+                'hall_id'=>$hall->id,
+                'reservation_date' =>$validated['reservation_date'],
+                'start_time' =>$validated['start_time'],
+                'end_time' =>$validated['end_time'],
+                'guests' =>$validated['guests'],
+                'total_price'=>$totalPrice,
+                'deposit_amount'=>$depositAmount,
+                'status' =>'pending',
             ]);
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save Selected Foods
-            |--------------------------------------------------------------------------
-            */
-
             foreach ($foods as $food) {
-
                 $reservation->foods()->attach(
                     $food->id,
                     [
-                        'price' =>
-                            $food->price,
+                        'price' =>$food->price,
                     ]
                 );
             }
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save Selected Sweets
-            |--------------------------------------------------------------------------
-            */
-
             foreach ($sweets as $sweet) {
-
                 $reservation->sweets()->attach(
                     $sweet->id,
                     [
-                        'price' =>
-                            $sweet->price,
+                        'price' =>$sweet->price,
                     ]
                 );
             }
-
-
-
             return $reservation;
         });
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Reservation Created Event
-        |--------------------------------------------------------------------------
-        */
-
-        event(
-            new ReservationCreated($reservation)
-        );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Redirect to Reservation Details
-        |--------------------------------------------------------------------------
-        */
+        event(new ReservationCreated($reservation));
 
         return redirect()
             ->route(
@@ -397,28 +213,18 @@ class ReservationController extends Controller
             );
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reservation Details
-    |--------------------------------------------------------------------------
-    */
-
     public function show(Reservation $reservation)
     {
         abort_unless(
             $reservation->customer_id === auth()->id(),
             403
         );
-
         $reservation->load([
             'hall',
             'foods.images',
             'sweets.images',
             'payment',
         ]);
-
         return view(
             'customer.reservations.show',
             compact('reservation')
@@ -426,38 +232,14 @@ class ReservationController extends Controller
     }
 
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Edit Food & Sweets
-    |--------------------------------------------------------------------------
-    */
-
-    public function editFoodSweets(
-        Reservation $reservation
-    ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Reservation Belongs To Customer
-        |--------------------------------------------------------------------------
-        */
-
+    public function editFoodSweets(Reservation $reservation) 
+    {
         abort_unless(
             $reservation->customer_id === auth()->id(),
             403
         );
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Only Pending Reservations Can Be Edited
-        |--------------------------------------------------------------------------
-        */
-
         if ($reservation->status !== 'pending') {
-
             return redirect()
                 ->route(
                     'customer.reservations.show',
@@ -468,29 +250,11 @@ class ReservationController extends Controller
                     'Food and sweets can only be updated while the reservation is pending.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Load Reservation Data
-        |--------------------------------------------------------------------------
-        */
-
         $reservation->load([
             'hall',
             'foods',
             'sweets',
         ]);
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Foods For This Hall Only
-        |--------------------------------------------------------------------------
-        */
-
         $foods = Food::where(
                 'hall_id',
                 $reservation->hall_id
@@ -498,28 +262,12 @@ class ReservationController extends Controller
             ->with('images')
             ->get();
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Sweets For This Hall Only
-        |--------------------------------------------------------------------------
-        */
-
         $sweets = Sweet::where(
                 'hall_id',
                 $reservation->hall_id
             )
             ->with('images')
             ->get();
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Show Edit Page
-        |--------------------------------------------------------------------------
-        */
 
         return view(
             'customer.reservations.edit-food-sweets',
@@ -531,40 +279,13 @@ class ReservationController extends Controller
         );
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Food & Sweets
-    |--------------------------------------------------------------------------
-    */
-
-    public function updateFoodSweets(
-        Request $request,
-        Reservation $reservation
-    ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Reservation Belongs To Customer
-        |--------------------------------------------------------------------------
-        */
-
+    public function updateFoodSweets(Request $request,Reservation $reservation) 
+    {
         abort_unless(
             $reservation->customer_id === auth()->id(),
             403
         );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Only Pending Reservations Can Be Updated
-        |--------------------------------------------------------------------------
-        */
-
         if ($reservation->status !== 'pending') {
-
             return redirect()
                 ->route(
                     'customer.reservations.show',
@@ -575,48 +296,13 @@ class ReservationController extends Controller
                     'Food and sweets can only be updated while the reservation is pending.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Request
-        |--------------------------------------------------------------------------
-        */
-
         $validated = $request->validate([
-
-            'food_ids' =>
-                'nullable|array',
-
-            'food_ids.*' =>
-                'integer|exists:foods,id',
-
-            'sweet_ids' =>
-                'nullable|array',
-
-            'sweet_ids.*' =>
-                'integer|exists:sweets,id',
-
+            'food_ids' =>'nullable|array',
+            'food_ids.*' =>'integer|exists:foods,id',
+            'sweet_ids' =>'nullable|array',
+            'sweet_ids.*' =>'integer|exists:sweets,id',
         ]);
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Selected Food IDs
-        |--------------------------------------------------------------------------
-        */
-
         $foodIds = $validated['food_ids'] ?? [];
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Selected Foods For This Hall
-        |--------------------------------------------------------------------------
-        */
 
         $foods = Food::whereIn(
                 'id',
@@ -625,44 +311,16 @@ class ReservationController extends Controller
             ->where(
                 'hall_id',
                 $reservation->hall_id
-            )
-            ->get();
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Food Ownership
-        |--------------------------------------------------------------------------
-        */
+            )->get();
 
         if ($foods->count() !== count($foodIds)) {
-
             return back()
                 ->withInput()
                 ->withErrors([
-                    'food_ids' =>
-                        'One or more selected food items do not belong to this hall.',
+                    'food_ids' =>'One or more selected food items do not belong to this hall.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Selected Sweet IDs
-        |--------------------------------------------------------------------------
-        */
-
         $sweetIds = $validated['sweet_ids'] ?? [];
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Selected Sweets For This Hall
-        |--------------------------------------------------------------------------
-        */
 
         $sweets = Sweet::whereIn(
                 'id',
@@ -671,87 +329,31 @@ class ReservationController extends Controller
             ->where(
                 'hall_id',
                 $reservation->hall_id
-            )
-            ->get();
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Sweet Ownership
-        |--------------------------------------------------------------------------
-        */
+            )->get();
 
         if ($sweets->count() !== count($sweetIds)) {
-
             return back()
                 ->withInput()
                 ->withErrors([
-                    'sweet_ids' =>
-                        'One or more selected sweet items do not belong to this hall.',
+                    'sweet_ids' =>'One or more selected sweet items do not belong to this hall.',
                 ]);
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Hall
-        |--------------------------------------------------------------------------
-        */
-
-        $hall = Hall::findOrFail(
-            $reservation->hall_id
-        );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate New Total
-        |--------------------------------------------------------------------------
-        */
-
+        $hall = Hall::findOrFail($reservation->hall_id);
         $hallPrice = (float) $hall->price;
 
         $foodTotal = (float) $foods->sum(
-            fn ($food) =>
-                (float) $food->price
+            fn ($food) =>(float) $food->price
         );
 
         $sweetTotal = (float) $sweets->sum(
-            fn ($sweet) =>
-                (float) $sweet->price
+            fn ($sweet) =>(float) $sweet->price
         );
 
-        $totalPrice = round(
-            $hallPrice +
-            $foodTotal +
-            $sweetTotal,
-            2
-        );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate New Deposit
-        |--------------------------------------------------------------------------
-        */
+        $totalPrice = round($hallPrice +$foodTotal +$sweetTotal,2);
 
         $depositAmount = round(
-            $totalPrice *
-            (self::DEPOSIT_PERCENTAGE / 100),
-            2
+            $totalPrice * (self::DEPOSIT_PERCENTAGE / 100),2
         );
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update Reservation
-        |--------------------------------------------------------------------------
-        */
 
         DB::transaction(function () use (
             $reservation,
@@ -760,91 +362,32 @@ class ReservationController extends Controller
             $totalPrice,
             $depositAmount
         ) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Update Total & Deposit
-            |--------------------------------------------------------------------------
-            */
-
             $reservation->update([
-
-                'total_price' =>
-                    $totalPrice,
-
-                'deposit_amount' =>
-                    $depositAmount,
-
+                'total_price' =>$totalPrice,
+                'deposit_amount' =>$depositAmount,
             ]);
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove Old Foods
-            |--------------------------------------------------------------------------
-            */
 
             $reservation->foods()->detach();
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Add New Foods
-            |--------------------------------------------------------------------------
-            */
-
             foreach ($foods as $food) {
-
                 $reservation->foods()->attach(
                     $food->id,
                     [
-                        'price' =>
-                            $food->price,
+                        'price'=>$food->price,
                     ]
                 );
             }
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove Old Sweets
-            |--------------------------------------------------------------------------
-            */
-
             $reservation->sweets()->detach();
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Add New Sweets
-            |--------------------------------------------------------------------------
-            */
-
             foreach ($sweets as $sweet) {
-
                 $reservation->sweets()->attach(
                     $sweet->id,
                     [
-                        'price' =>
-                            $sweet->price,
+                        'price' =>$sweet->price,
                     ]
                 );
             }
-
         });
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Redirect To Reservation Details
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
             ->route(
                 'customer.reservations.show',
@@ -857,40 +400,15 @@ class ReservationController extends Controller
     }
 
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Edit Reservation Date
-    |--------------------------------------------------------------------------
-    */
-
-    public function editDate(
-        Reservation $reservation
-    ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Reservation Belongs To Customer
-        |--------------------------------------------------------------------------
-        */
-
+    public function editDate(Reservation $reservation) 
+    {
         abort_unless(
             $reservation->customer_id === auth()->id(),
             403
         );
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Only Pending Reservations Can Be Changed
-        |--------------------------------------------------------------------------
-        */
-
         if ($reservation->status !== 'pending') {
-
-            return redirect()
-                ->route(
+            return redirect()->route(
                     'customer.reservations.index'
                 )
                 ->with(
@@ -898,30 +416,13 @@ class ReservationController extends Controller
                     'Only pending reservations can be changed.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check 14 Days Rule
-        |--------------------------------------------------------------------------
-        */
-
         $reservationDate = Carbon::parse(
-            $reservation->reservation_date
-        )->startOfDay();
+            $reservation->reservation_date)->startOfDay();
 
         $today = Carbon::today();
-
-        $daysUntilReservation = $today->diffInDays(
-            $reservationDate,
-            false
-        );
-
-
+        $daysUntilReservation = $today->diffInDays($reservationDate,false);
 
         if ($daysUntilReservation < 14) {
-
             return redirect()
                 ->route(
                     'customer.reservations.index'
@@ -931,57 +432,20 @@ class ReservationController extends Controller
                     'You cannot change the reservation date less than 14 days in advance.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Show Edit Date Page
-        |--------------------------------------------------------------------------
-        */
-
         return view(
             'customer.reservations.edit-date',
             compact('reservation')
         );
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Reservation Date
-    |--------------------------------------------------------------------------
-    */
-
-    public function updateDate(
-        Request $request,
-        Reservation $reservation
-    ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure Reservation Belongs To Customer
-        |--------------------------------------------------------------------------
-        */
-
+    public function updateDate(Request $request,Reservation $reservation) 
+    {
         abort_unless(
-            $reservation->customer_id === auth()->id(),
-            403
+            $reservation->customer_id === auth()->id(),403
         );
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Only Pending Reservations Can Be Updated
-        |--------------------------------------------------------------------------
-        */
-
         if ($reservation->status !== 'pending') {
-
-            return redirect()
-                ->route(
+            return redirect()->route(
                     'customer.reservations.index'
                 )
                 ->with(
@@ -989,32 +453,14 @@ class ReservationController extends Controller
                     'Only pending reservations can be changed.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check Original Reservation Is Still 14+ Days Away
-        |--------------------------------------------------------------------------
-        */
-
         $currentReservationDate = Carbon::parse(
-            $reservation->reservation_date
-        )->startOfDay();
+            $reservation->reservation_date)->startOfDay();
 
         $today = Carbon::today();
-
-        $daysUntilReservation = $today->diffInDays(
-            $currentReservationDate,
-            false
-        );
-
-
+        $daysUntilReservation = $today->diffInDays($currentReservationDate,false);
 
         if ($daysUntilReservation < 14) {
-
-            return redirect()
-                ->route(
+            return redirect()->route(
                     'customer.reservations.index'
                 )
                 ->with(
@@ -1022,17 +468,7 @@ class ReservationController extends Controller
                     'You cannot change the reservation date less than 14 days in advance.'
                 );
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate New Date
-        |--------------------------------------------------------------------------
-        */
-
         $validated = $request->validate([
-
             'reservation_date' => [
                 'required',
                 'date',
@@ -1041,47 +477,15 @@ class ReservationController extends Controller
                         ->addDays(14)
                         ->format('Y-m-d'),
             ],
-
         ]);
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Parse New Date
-        |--------------------------------------------------------------------------
-        */
-
-        $newDate = Carbon::parse(
-            $validated['reservation_date']
-        )->startOfDay();
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Make Sure New Date Is Different
-        |--------------------------------------------------------------------------
-        */
+        $newDate = Carbon::parse($validated['reservation_date'])->startOfDay();
 
         if ($newDate->equalTo($currentReservationDate)) {
-
-            return back()
-                ->withErrors([
+            return back()->withErrors([
                     'reservation_date' =>
                         'The new date must be different from the current reservation date.',
-                ])
-                ->withInput();
+                ])->withInput();
         }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check Hall Availability
-        |--------------------------------------------------------------------------
-        */
-
         $conflictingReservation = Reservation::where(
                 'hall_id',
                 $reservation->hall_id
@@ -1103,7 +507,6 @@ class ReservationController extends Controller
                 ]
             )
             ->where(function ($query) use ($reservation) {
-
                 $query
                     ->where(
                         'start_time',
@@ -1115,14 +518,9 @@ class ReservationController extends Controller
                         '>',
                         $reservation->start_time
                     );
-
-            })
-            ->exists();
-
-
+            })->exists();
 
         if ($conflictingReservation) {
-
             return back()
                 ->withInput()
                 ->withErrors([
@@ -1131,31 +529,11 @@ class ReservationController extends Controller
                 ]);
         }
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update Reservation Date
-        |--------------------------------------------------------------------------
-        */
-
         $reservation->update([
-
-            'reservation_date' =>
-                $newDate->format('Y-m-d'),
-
+            'reservation_date' =>$newDate->format('Y-m-d'),
         ]);
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Redirect
-        |--------------------------------------------------------------------------
-        */
-
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'customer.reservations.index'
             )
             ->with(

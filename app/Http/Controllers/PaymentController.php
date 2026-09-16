@@ -13,7 +13,6 @@ class PaymentController extends Controller
             $reservation->customer_id === auth()->id(),
             403
         );
-
         return view('customer.payments.checkout', compact('reservation'));
     }
 
@@ -23,7 +22,6 @@ class PaymentController extends Controller
             $reservation->customer_id === auth()->id(),
             403
         );
-
         return response()->json([
             'message' => 'Payment process will be connected to PayTabs next.',
             'reservation_id' => $reservation->id,
@@ -36,7 +34,6 @@ class PaymentController extends Controller
             $reservation->customer_id === auth()->id(),
             403
         );
-
         return view('customer.payments.success', compact('reservation'));
     }
 
@@ -46,7 +43,6 @@ class PaymentController extends Controller
             $reservation->customer_id === auth()->id(),
             403
         );
-
         return view('customer.payments.cancel', compact('reservation'));
     }
 }

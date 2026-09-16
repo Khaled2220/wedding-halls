@@ -43,60 +43,29 @@ class HallController extends Controller
     public function store(StoreHallRequest $request)
     {
         $validated = $request->validated();
-
         DB::transaction(function () use (
             $request,
             $validated
         ) {
-
-            /*
-             * Create Hall
-             */
             $hall = Hall::create([
                 'hall_manager_id' => auth()->id(),
-
                 'name' => $validated['name'],
-
-                'description' =>
-                    $validated['description'] ?? null,
-
-                'food' =>
-                    $validated['food'] ?? null,
-
-                'sweets' =>
-                    $validated['sweets'] ?? null,
-
-                'address' =>
-                    $validated['address'],
-
-                'phone' =>
-                    $validated['phone'] ?? null,
-
-                'price' =>
-                    $validated['price'],
-
-                'capacity' =>
-                    $validated['capacity'] ?? null,
-
-                'status' =>
-                    'active',
-
-                'latitude' =>
-                    $validated['latitude'] ?? null,
-
-                'longitude' =>
-                    $validated['longitude'] ?? null,
+                'description' =>$validated['description'] ?? null,
+                'food' =>$validated['food'] ?? null,
+                'sweets' =>$validated['sweets'] ?? null,
+                'address' => $validated['address'],
+                'phone' => $validated['phone'] ?? null,
+                'price' =>  $validated['price'],
+                'capacity' => $validated['capacity'] ?? null,
+                'status' => 'active',
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' =>$validated['longitude'] ?? null,
             ]);
-
-            /*
-             * Upload Hall Images
-             */
             if ($request->hasFile('images')) {
-
                 foreach (
                     $request->file('images') as $image
-                ) {
-
+                ) 
+                {
                     $path = $image->store(
                         'halls',
                         'public'
@@ -108,70 +77,46 @@ class HallController extends Controller
                     ]);
                 }
             }
-
-            /*
-             * Create Food
-             */
             if (
                 $request->filled('food_price') ||
                 $request->hasFile('food_images')
             ) {
-
                 $food = Food::create([
                     'hall_id' => $hall->id,
                     'price' =>
                         $validated['food_price'] ?? 0,
                 ]);
-
-                /*
-                 * Upload Food Images
-                 */
                 if ($request->hasFile('food_images')) {
-
                     foreach (
                         $request->file('food_images') as $image
                     ) {
-
                         $path = $image->store(
                             'foods',
                             'public'
                         );
-
                         $food->images()->create([
                             'image_path' => $path,
                         ]);
                     }
                 }
             }
-
-            /*
-             * Create Sweet
-             */
             if (
                 $request->filled('sweet_price') ||
                 $request->hasFile('sweet_images')
             ) {
-
                 $sweet = Sweet::create([
                     'hall_id' => $hall->id,
                     'price' =>
                         $validated['sweet_price'] ?? 0,
                 ]);
-
-                /*
-                 * Upload Sweet Images
-                 */
                 if ($request->hasFile('sweet_images')) {
-
                     foreach (
                         $request->file('sweet_images') as $image
                     ) {
-
                         $path = $image->store(
                             'sweets',
                             'public'
                         );
-
                         $sweet->images()->create([
                             'image_path' => $path,
                         ]);
@@ -179,7 +124,6 @@ class HallController extends Controller
                 }
             }
         });
-
         return redirect()
             ->route('hall-manager.halls.index')
             ->with(
@@ -197,13 +141,11 @@ class HallController extends Controller
             $hall->hall_manager_id === auth()->id(),
             403
         );
-
         $hall->load([
             'images',
             'foods.images',
             'sweetItems.images',
         ]);
-
         return view(
             'hall-manager.halls.show',
             compact('hall')
@@ -219,9 +161,7 @@ class HallController extends Controller
             $hall->hall_manager_id === auth()->id(),
             403
         );
-
         $hall->load('images');
-
         return view(
             'hall-manager.halls.edit',
             compact('hall')
@@ -239,52 +179,25 @@ class HallController extends Controller
             $hall->hall_manager_id === auth()->id(),
             403
         );
-
         $validated = $request->validated();
-
-        /*
-         * Update Hall
-         */
         $hall->update([
-            'name' =>
-                $validated['name'],
-
-            'description' =>
-                $validated['description'] ?? null,
-
-            'food' =>
-                $validated['food'] ?? null,
-
-            'sweets' =>
-                $validated['sweets'] ?? null,
-
-            'address' =>
-                $validated['address'],
-
-            'phone' =>
-                $validated['phone'] ?? null,
-
-            'price' =>
-                $validated['price'],
-
-            'capacity' =>
-                $validated['capacity'] ?? null,
-
-            'status' =>
-                $validated['status'],
-
-            'latitude' =>
-                $validated['latitude'] ?? null,
-
-            'longitude' =>
-                $validated['longitude'] ?? null,
+            'name' =>$validated['name'],
+            'description' =>$validated['description'] ?? null,
+            'food' =>$validated['food'] ?? null,
+            'sweets' =>$validated['sweets'] ?? null,
+            'address' =>$validated['address'],
+            'phone' =>$validated['phone'] ?? null,
+            'price' =>$validated['price'],
+            'capacity' =>$validated['capacity'] ?? null,
+            'status' =>$validated['status'],
+            'latitude' =>$validated['latitude'] ?? null,
+            'longitude' =>$validated['longitude'] ?? null,
         ]);
 
         /*
          * Delete selected images
          */
         if (!empty($validated['delete_images'])) {
-
             $imagesToDelete = HallImage::where(
                 'hall_id',
                 $hall->id
@@ -292,15 +205,12 @@ class HallController extends Controller
             ->whereIn(
                 'id',
                 $validated['delete_images']
-            )
-            ->get();
+            )->get();
 
             foreach ($imagesToDelete as $hallImage) {
-
                 Storage::disk('public')->delete(
                     $hallImage->image
                 );
-
                 $hallImage->delete();
             }
         }
@@ -309,23 +219,19 @@ class HallController extends Controller
          * Add new Hall images
          */
         if ($request->hasFile('images')) {
-
             foreach (
                 $request->file('images') as $image
             ) {
-
                 $path = $image->store(
                     'halls',
                     'public'
                 );
-
                 HallImage::create([
                     'hall_id' => $hall->id,
                     'image' => $path,
                 ]);
             }
         }
-
         return redirect()
             ->route(
                 'hall-manager.halls.show',
@@ -346,30 +252,13 @@ class HallController extends Controller
             $hall->hall_manager_id === auth()->id(),
             403
         );
-
-        /*
-         * Load images before deleting.
-         */
         $hall->load('images');
-
-        /*
-         * Delete Hall image files.
-         */
         foreach ($hall->images as $hallImage) {
-
             Storage::disk('public')->delete(
                 $hallImage->image
             );
         }
-
-        /*
-         * Delete Hall.
-         *
-         * Related database records should use
-         * cascadeOnDelete().
-         */
         $hall->delete();
-
         return redirect()
             ->route(
                 'hall-manager.halls.index'

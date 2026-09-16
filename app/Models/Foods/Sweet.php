@@ -15,9 +15,7 @@ class Sweet extends Model
         'price',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-    ];
+    protected $casts = ['price' => 'decimal:2',];
 
     public function hall(): BelongsTo
     {

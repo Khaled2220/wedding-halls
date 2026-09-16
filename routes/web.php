@@ -6,16 +6,12 @@ use App\Http\Controllers\CustomerHallController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\HallManagerReservationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\Foods\FoodController;
 use App\Http\Controllers\Foods\SweetController;
 use Illuminate\Support\Facades\Route;
 
 
-/*
-|--------------------------------------------------------------------------
-| Home
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -23,11 +19,8 @@ Route::get('/', function () {
 
 
 /*
-|--------------------------------------------------------------------------
-| Hall Manager Dashboard
-|--------------------------------------------------------------------------
+* Hall Manager Dashboard
 */
-
 Route::get('/hall-manager/dashboard', function () {
     return redirect()->route('hall-manager.sweets.index');
 })
@@ -36,26 +29,20 @@ Route::get('/hall-manager/dashboard', function () {
 
 
 /*
-|--------------------------------------------------------------------------
 | Worker Dashboard
-|--------------------------------------------------------------------------
 */
-
-Route::get('/worker/dashboard', function () {
-    return view('worker.dashboard');
-})
+Route::get(
+    '/worker/dashboard',
+    [WorkerController::class, 'dashboard']
+)
     ->middleware(['auth', 'verified'])
     ->name('worker.dashboard');
 
 
 /*
-|--------------------------------------------------------------------------
 | Profile
-|--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
-
     Route::get(
         '/profile',
         [ProfileController::class, 'edit']
@@ -70,77 +57,54 @@ Route::middleware('auth')->group(function () {
         '/profile',
         [ProfileController::class, 'destroy']
     )->name('profile.destroy');
-
 });
 
 
 /*
-|--------------------------------------------------------------------------
 | Hall Manager
-|--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])
     ->prefix('hall-manager')
     ->name('hall-manager.')
     ->group(function () {
 
         /*
-        |--------------------------------------------------------------------------
         | Halls
-        |--------------------------------------------------------------------------
         */
-
         Route::resource(
-            'halls',
-            HallController::class
+            'halls',HallController::class
         );
 
 
         /*
-        |--------------------------------------------------------------------------
         | Foods
-        |--------------------------------------------------------------------------
         */
-
         Route::resource(
-            'foods',
-            FoodController::class
+            'foods',FoodController::class
         );
 
 
         /*
-        |--------------------------------------------------------------------------
         | Sweets
-        |--------------------------------------------------------------------------
         */
-
         Route::resource(
-            'sweets',
-            SweetController::class
+            'sweets',SweetController::class
         );
 
 
         /*
-        |--------------------------------------------------------------------------
         | Reservations
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/reservations',
             [HallManagerReservationController::class, 'index']
         )->name('reservations.index');
-
     });
 
 
 /*
-|--------------------------------------------------------------------------
 | Customer Halls
-|--------------------------------------------------------------------------
 */
-
 Route::get(
     '/customer/halls',
     [CustomerHallController::class, 'index']
@@ -154,22 +118,16 @@ Route::get(
 
 
 /*
-|--------------------------------------------------------------------------
 | Customer
-|--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])
     ->prefix('customer')
     ->name('customer.')
     ->group(function () {
 
         /*
-        |--------------------------------------------------------------------------
         | Customer Reservations List
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/reservations',
             [ReservationController::class, 'index']
@@ -177,11 +135,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Create Reservation
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/halls/{hall}/reserve',
             [ReservationController::class, 'create']
@@ -189,11 +144,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Store Reservation
-        |--------------------------------------------------------------------------
         */
-
         Route::post(
             '/halls/{hall}/reserve',
             [ReservationController::class, 'store']
@@ -201,11 +153,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Show Reservation
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/reservations/{reservation}',
             [ReservationController::class, 'show']
@@ -213,11 +162,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Edit Food & Sweets
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/reservations/{reservation}/edit-food-sweets',
             [ReservationController::class, 'editFoodSweets']
@@ -225,11 +171,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Update Food & Sweets
-        |--------------------------------------------------------------------------
         */
-
         Route::put(
             '/reservations/{reservation}/food-sweets',
             [ReservationController::class, 'updateFoodSweets']
@@ -237,11 +180,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Edit Reservation Date
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/reservations/{reservation}/edit-date',
             [ReservationController::class, 'editDate']
@@ -249,11 +189,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Update Reservation Date
-        |--------------------------------------------------------------------------
         */
-
         Route::put(
             '/reservations/{reservation}/date',
             [ReservationController::class, 'updateDate']
@@ -261,11 +198,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Payment Checkout
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/payments/{reservation}',
             [PaymentController::class, 'checkout']
@@ -273,11 +207,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Process Payment
-        |--------------------------------------------------------------------------
         */
-
         Route::post(
             '/payments/{reservation}',
             [PaymentController::class, 'process']
@@ -285,11 +216,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Payment Success
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/payments/success/{reservation}',
             [PaymentController::class, 'success']
@@ -297,11 +225,8 @@ Route::middleware(['auth', 'verified'])
 
 
         /*
-        |--------------------------------------------------------------------------
         | Payment Cancel
-        |--------------------------------------------------------------------------
         */
-
         Route::get(
             '/payments/cancel/{reservation}',
             [PaymentController::class, 'cancel']
@@ -311,9 +236,6 @@ Route::middleware(['auth', 'verified'])
 
 
 /*
-|--------------------------------------------------------------------------
 | Authentication
-|--------------------------------------------------------------------------
 */
-
 require __DIR__ . '/auth.php';

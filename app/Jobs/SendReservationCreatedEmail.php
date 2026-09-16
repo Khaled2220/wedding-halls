@@ -25,6 +25,15 @@ class SendReservationCreatedEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        $customer = $this->reservation->customer;
+         if (!$customer || !$customer->email) {
+            return;
+        }
+        Notification::route('mail', $customer->email)
+            ->notify(
+                new ReservationCreatedNotification(
+                    $this->reservation
+                )
+            );
     }
 }
