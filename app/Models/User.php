@@ -31,8 +31,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function halls():HasMany
     {
         return $this->hasMany(Hall::class, 'hall_manager_id');
+    }
+
+    public function jobPosts(): HasMany
+    {
+        return $this->hasMany(JobPost::class, 'hall_manager_id');
+    }
+
+    public function jobApplications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class, 'worker_id');
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Foods\Food;
 use App\Models\Foods\Sweet;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\JobPost;
 
 class Hall extends Model
 {
@@ -71,5 +72,10 @@ class Hall extends Model
             Sweet::class,
             'hall_id'
         );
+    }
+
+    public function jobPosts()
+    {
+        return $this->hasMany(JobPost::class);
     }
 }
