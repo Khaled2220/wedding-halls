@@ -39,17 +39,67 @@ Route::get('/hall-manager/dashboard', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Worker Dashboard
+| Worker
 |--------------------------------------------------------------------------
 */
 
-Route::get(
-    '/worker/dashboard',
-    [WorkerController::class, 'dashboard']
-)
-    ->middleware(['auth', 'verified'])
-    ->name('worker.dashboard');
+Route::middleware(['auth', 'verified'])
+    ->prefix('worker')
+    ->name('worker.')
+    ->group(function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/dashboard',
+            [WorkerController::class, 'dashboard']
+        )->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Advertisements
+        |--------------------------------------------------------------------------
+        |
+        | Worker can:
+        | - View available job advertisements
+        | - View a specific job advertisement
+        | - Apply for a job
+        |
+        */
+
+        Route::get(
+            '/job-posts',
+            [WorkerController::class, 'jobs']
+        )->name('job-posts.index');
+
+        Route::get(
+            '/job-posts/{jobPost}',
+            [WorkerController::class, 'showJob']
+        )->name('job-posts.show');
+
+        Route::post(
+            '/job-posts/{jobPost}/apply',
+            [WorkerController::class, 'apply']
+        )->name('job-posts.apply');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | My Applications
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/applications',
+            [WorkerController::class, 'applications']
+        )->name('applications.index');
+
+    });
 
 /*
 |--------------------------------------------------------------------------

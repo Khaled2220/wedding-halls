@@ -54,7 +54,6 @@
     </header>
 
 
-
     <!-- Main -->
 
     <main class="max-w-7xl mx-auto px-6 py-10">
@@ -65,12 +64,9 @@
         @if (session('success'))
 
             <div
-                class="mb-6
-                       rounded-xl
-                       bg-green-50
+                class="mb-6 rounded-xl bg-green-50
                        border border-green-200
-                       px-5 py-4
-                       text-green-700"
+                       px-5 py-4 text-green-700"
             >
 
                 {{ session('success') }}
@@ -80,18 +76,14 @@
         @endif
 
 
-
         <!-- Error Message -->
 
         @if (session('error'))
 
             <div
-                class="mb-6
-                       rounded-xl
-                       bg-red-50
+                class="mb-6 rounded-xl bg-red-50
                        border border-red-200
-                       px-5 py-4
-                       text-red-700"
+                       px-5 py-4 text-red-700"
             >
 
                 {{ session('error') }}
@@ -101,15 +93,11 @@
         @endif
 
 
-
         <!-- Hall Card -->
 
         <div
-            class="bg-white
-                   rounded-2xl
-                   shadow-sm
-                   border border-gray-200
-                   overflow-hidden"
+            class="bg-white rounded-2xl shadow-sm
+                   border border-gray-200 overflow-hidden"
         >
 
 
@@ -118,22 +106,15 @@
             @if ($hall->images && $hall->images->count() > 0)
 
                 <div
-                    class="grid
-                           grid-cols-1
-                           sm:grid-cols-2
-                           lg:grid-cols-3
-                           gap-4
-                           p-6
-                           bg-gray-50"
+                    class="grid grid-cols-1 sm:grid-cols-2
+                           lg:grid-cols-3 gap-4 p-6 bg-gray-50"
                 >
 
                     @foreach ($hall->images as $image)
 
                         <div
-                            class="overflow-hidden
-                                   rounded-xl
-                                   bg-gray-200
-                                   aspect-video"
+                            class="overflow-hidden rounded-xl
+                                   bg-gray-200 aspect-video"
                         >
 
                             <img
@@ -151,7 +132,6 @@
             @endif
 
 
-
             <!-- Hall Information -->
 
             <div class="p-8">
@@ -160,20 +140,15 @@
                 <!-- Title -->
 
                 <div
-                    class="flex flex-col
-                           md:flex-row
-                           md:items-start
-                           md:justify-between
-                           gap-4
-                           mb-8"
+                    class="flex flex-col md:flex-row
+                           md:items-start md:justify-between
+                           gap-4 mb-8"
                 >
 
                     <div>
 
                         <h2
-                            class="text-3xl
-                                   font-bold
-                                   text-gray-900"
+                            class="text-3xl font-bold text-gray-900"
                         >
                             {{ $hall->name }}
                         </h2>
@@ -182,19 +157,13 @@
                         @if ($hall->status)
 
                             <span
-                                class="inline-block
-                                       mt-3
-                                       px-3 py-1
-                                       rounded-full
-                                       text-sm
-                                       font-medium
+                                class="inline-block mt-3 px-3 py-1
+                                       rounded-full text-sm font-medium
                                        {{ $hall->status === 'active'
                                            ? 'bg-green-100 text-green-700'
                                            : 'bg-gray-100 text-gray-600' }}"
                             >
-
                                 {{ ucfirst($hall->status) }}
-
                             </span>
 
                         @endif
@@ -202,32 +171,20 @@
                     </div>
 
 
-
                     <!-- Edit Hall -->
 
                     <a
-                        href="{{ route(
-                            'hall-manager.halls.edit',
-                            $hall
-                        ) }}"
-                        class="inline-flex
-                               items-center
-                               justify-center
-                               px-5 py-3
-                               rounded-xl
-                               bg-gray-900
-                               text-white
-                               font-semibold
-                               hover:bg-gray-800
-                               transition"
+                        href="{{ route('hall-manager.halls.edit', $hall) }}"
+                        class="inline-flex items-center
+                               justify-center px-5 py-3
+                               rounded-xl bg-gray-900
+                               text-white font-semibold
+                               hover:bg-gray-800 transition"
                     >
-
                         ✏️ Edit Hall
-
                     </a>
 
                 </div>
-
 
 
                 <!-- Description -->
@@ -237,14 +194,11 @@
                     <div class="mb-8">
 
                         <h3
-                            class="text-lg
-                                   font-bold
-                                   text-gray-900
-                                   mb-2"
+                            class="text-lg font-bold
+                                   text-gray-900 mb-2"
                         >
                             Description
                         </h3>
-
 
                         <p class="text-gray-600 leading-7">
                             {{ $hall->description }}
@@ -255,37 +209,27 @@
                 @endif
 
 
-
                 <!-- Details -->
 
                 <div
-                    class="grid
-                           grid-cols-1
-                           md:grid-cols-2
-                           lg:grid-cols-3
-                           gap-5
-                           mb-8"
+                    class="grid grid-cols-1 md:grid-cols-2
+                           lg:grid-cols-3 gap-5 mb-8"
                 >
 
 
                     <!-- Address -->
 
                     <div
-                        class="rounded-xl
-                               bg-gray-50
-                               border border-gray-200
-                               p-5"
+                        class="rounded-xl bg-gray-50
+                               border border-gray-200 p-5"
                     >
 
                         <p
-                            class="text-sm
-                                   font-semibold
-                                   text-gray-500
-                                   mb-1"
+                            class="text-sm font-semibold
+                                   text-gray-500 mb-1"
                         >
                             Address
                         </p>
-
 
                         <p class="text-gray-900">
                             {{ $hall->address }}
@@ -294,27 +238,21 @@
                     </div>
 
 
-
                     <!-- Phone -->
 
                     @if ($hall->phone)
 
                         <div
-                            class="rounded-xl
-                                   bg-gray-50
-                                   border border-gray-200
-                                   p-5"
+                            class="rounded-xl bg-gray-50
+                                   border border-gray-200 p-5"
                         >
 
                             <p
-                                class="text-sm
-                                       font-semibold
-                                       text-gray-500
-                                       mb-1"
+                                class="text-sm font-semibold
+                                       text-gray-500 mb-1"
                             >
                                 Phone
                             </p>
-
 
                             <p class="text-gray-900">
                                 {{ $hall->phone }}
@@ -325,32 +263,25 @@
                     @endif
 
 
-
                     <!-- Price -->
 
                     <div
-                        class="rounded-xl
-                               bg-gray-50
-                               border border-gray-200
-                               p-5"
+                        class="rounded-xl bg-gray-50
+                               border border-gray-200 p-5"
                     >
 
                         <p
-                            class="text-sm
-                                   font-semibold
-                                   text-gray-500
-                                   mb-1"
+                            class="text-sm font-semibold
+                                   text-gray-500 mb-1"
                         >
                             Price
                         </p>
 
-
                         <p class="text-gray-900 font-semibold">
-                            {{ $hall->price }}
+                            {{ number_format($hall->price, 2) }} JOD
                         </p>
 
                     </div>
-
 
 
                     <!-- Capacity -->
@@ -358,21 +289,16 @@
                     @if ($hall->capacity)
 
                         <div
-                            class="rounded-xl
-                                   bg-gray-50
-                                   border border-gray-200
-                                   p-5"
+                            class="rounded-xl bg-gray-50
+                                   border border-gray-200 p-5"
                         >
 
                             <p
-                                class="text-sm
-                                       font-semibold
-                                       text-gray-500
-                                       mb-1"
+                                class="text-sm font-semibold
+                                       text-gray-500 mb-1"
                             >
                                 Capacity
                             </p>
-
 
                             <p class="text-gray-900">
                                 {{ $hall->capacity }} people
@@ -383,36 +309,24 @@
                     @endif
 
 
-
                     <!-- Food Status -->
 
                     @if ($hall->food)
 
                         <div
-                            class="rounded-xl
-                                   bg-gray-50
-                                   border border-gray-200
-                                   p-5"
+                            class="rounded-xl bg-gray-50
+                                   border border-gray-200 p-5"
                         >
 
                             <p
-                                class="text-sm
-                                       font-semibold
-                                       text-gray-500
-                                       mb-1"
+                                class="text-sm font-semibold
+                                       text-gray-500 mb-1"
                             >
                                 Food
                             </p>
 
-
                             <p class="text-gray-900">
-                                {{ ucfirst(
-                                    str_replace(
-                                        '_',
-                                        ' ',
-                                        $hall->food
-                                    )
-                                ) }}
+                                {{ ucfirst(str_replace('_', ' ', $hall->food)) }}
                             </p>
 
                         </div>
@@ -420,36 +334,24 @@
                     @endif
 
 
-
                     <!-- Sweets Status -->
 
                     @if ($hall->sweets)
 
                         <div
-                            class="rounded-xl
-                                   bg-gray-50
-                                   border border-gray-200
-                                   p-5"
+                            class="rounded-xl bg-gray-50
+                                   border border-gray-200 p-5"
                         >
 
                             <p
-                                class="text-sm
-                                       font-semibold
-                                       text-gray-500
-                                       mb-1"
+                                class="text-sm font-semibold
+                                       text-gray-500 mb-1"
                             >
                                 Sweets
                             </p>
 
-
                             <p class="text-gray-900">
-                                {{ ucfirst(
-                                    str_replace(
-                                        '_',
-                                        ' ',
-                                        $hall->sweets
-                                    )
-                                ) }}
+                                {{ ucfirst(str_replace('_', ' ', $hall->sweets)) }}
                             </p>
 
                         </div>
@@ -459,36 +361,26 @@
                 </div>
 
 
-
                 <!-- Food & Sweets -->
 
                 <div
-                    class="border-t
-                           border-gray-200
-                           pt-8"
+                    class="border-t border-gray-200 pt-8"
                 >
 
                     <h3
-                        class="text-2xl
-                               font-bold
-                               text-gray-900
-                               mb-2"
+                        class="text-2xl font-bold
+                               text-gray-900 mb-2"
                     >
                         Hall Food & Sweets
                     </h3>
-
 
                     <p class="text-gray-500 mb-6">
                         Add food and sweets specifically for this hall.
                     </p>
 
 
-
                     <div
-                        class="grid
-                               grid-cols-1
-                               md:grid-cols-2
-                               gap-5"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-5"
                     >
 
 
@@ -499,18 +391,12 @@
                                 'hall-manager.foods.create',
                                 ['hall_id' => $hall->id]
                             ) }}"
-                            class="flex
-                                   items-center
-                                   justify-center
-                                   gap-3
-                                   px-6 py-5
-                                   rounded-2xl
-                                   bg-blue-100
-                                   text-blue-700
-                                   font-semibold
-                                   text-lg
-                                   hover:bg-blue-200
-                                   transition"
+                            class="flex items-center
+                                   justify-center gap-3
+                                   px-6 py-5 rounded-2xl
+                                   bg-blue-100 text-blue-700
+                                   font-semibold text-lg
+                                   hover:bg-blue-200 transition"
                         >
 
                             🍽️
@@ -522,7 +408,6 @@
                         </a>
 
 
-
                         <!-- Add Sweet -->
 
                         <a
@@ -530,18 +415,12 @@
                                 'hall-manager.sweets.create',
                                 ['hall_id' => $hall->id]
                             ) }}"
-                            class="flex
-                                   items-center
-                                   justify-center
-                                   gap-3
-                                   px-6 py-5
-                                   rounded-2xl
-                                   bg-pink-100
-                                   text-pink-700
-                                   font-semibold
-                                   text-lg
-                                   hover:bg-pink-200
-                                   transition"
+                            class="flex items-center
+                                   justify-center gap-3
+                                   px-6 py-5 rounded-2xl
+                                   bg-pink-100 text-pink-700
+                                   font-semibold text-lg
+                                   hover:bg-pink-200 transition"
                         >
 
                             🍰
@@ -557,41 +436,33 @@
                 </div>
 
 
-
                 <!-- Existing Foods -->
 
                 @if ($hall->foods && $hall->foods->count() > 0)
 
                     <div
-                        class="border-t
-                               border-gray-200
-                               pt-8
-                               mt-8"
+                        class="border-t border-gray-200
+                               pt-8 mt-8"
                     >
 
                         <div
-                            class="flex
-                                   items-center
-                                   justify-between
-                                   mb-5"
+                            class="flex items-center
+                                   justify-between mb-5"
                         >
 
                             <h3
-                                class="text-xl
-                                       font-bold
+                                class="text-xl font-bold
                                        text-gray-900"
                             >
                                 Foods
                             </h3>
-
 
                             <a
                                 href="{{ route(
                                     'hall-manager.foods.index',
                                     ['hall_id' => $hall->id]
                                 ) }}"
-                                class="text-blue-600
-                                       font-medium
+                                class="text-blue-600 font-medium
                                        hover:text-blue-800"
                             >
                                 View All
@@ -600,52 +471,38 @@
                         </div>
 
 
-
                         <div
-                            class="grid
-                                   grid-cols-1
-                                   sm:grid-cols-2
-                                   lg:grid-cols-3
-                                   gap-5"
+                            class="grid grid-cols-1 sm:grid-cols-2
+                                   lg:grid-cols-3 gap-5"
                         >
 
                             @foreach ($hall->foods as $food)
 
                                 <div
-                                    class="border
-                                           border-gray-200
-                                           rounded-xl
-                                           p-5
-                                           bg-white"
+                                    class="border border-gray-200
+                                           rounded-xl p-5 bg-white"
                                 >
 
                                     <p
-                                        class="text-sm
-                                               text-gray-500
-                                               mb-1"
+                                        class="text-sm text-gray-500 mb-1"
                                     >
                                         Food
                                     </p>
 
-
                                     <p
-                                        class="text-xl
-                                               font-bold
+                                        class="text-xl font-bold
                                                text-gray-900"
                                     >
-                                        {{ $food->price }}
+                                        {{ $food->price }} JOD
                                     </p>
-
 
                                     <a
                                         href="{{ route(
                                             'hall-manager.foods.show',
                                             $food
                                         ) }}"
-                                        class="inline-block
-                                               mt-4
-                                               text-blue-600
-                                               font-medium
+                                        class="inline-block mt-4
+                                               text-blue-600 font-medium
                                                hover:text-blue-800"
                                     >
                                         View Food →
@@ -662,7 +519,6 @@
                 @endif
 
 
-
                 <!-- Existing Sweets -->
 
                 @if (
@@ -671,35 +527,28 @@
                 )
 
                     <div
-                        class="border-t
-                               border-gray-200
-                               pt-8
-                               mt-8"
+                        class="border-t border-gray-200
+                               pt-8 mt-8"
                     >
 
                         <div
-                            class="flex
-                                   items-center
-                                   justify-between
-                                   mb-5"
+                            class="flex items-center
+                                   justify-between mb-5"
                         >
 
                             <h3
-                                class="text-xl
-                                       font-bold
+                                class="text-xl font-bold
                                        text-gray-900"
                             >
                                 Sweets
                             </h3>
-
 
                             <a
                                 href="{{ route(
                                     'hall-manager.sweets.index',
                                     ['hall_id' => $hall->id]
                                 ) }}"
-                                class="text-pink-600
-                                       font-medium
+                                class="text-pink-600 font-medium
                                        hover:text-pink-800"
                             >
                                 View All
@@ -708,55 +557,38 @@
                         </div>
 
 
-
                         <div
-                            class="grid
-                                   grid-cols-1
-                                   sm:grid-cols-2
-                                   lg:grid-cols-3
-                                   gap-5"
+                            class="grid grid-cols-1 sm:grid-cols-2
+                                   lg:grid-cols-3 gap-5"
                         >
 
-                            @foreach (
-                                $hall->sweetItems
-                                as $sweet
-                            )
+                            @foreach ($hall->sweetItems as $sweet)
 
                                 <div
-                                    class="border
-                                           border-gray-200
-                                           rounded-xl
-                                           p-5
-                                           bg-white"
+                                    class="border border-gray-200
+                                           rounded-xl p-5 bg-white"
                                 >
 
                                     <p
-                                        class="text-sm
-                                               text-gray-500
-                                               mb-1"
+                                        class="text-sm text-gray-500 mb-1"
                                     >
                                         Sweet
                                     </p>
 
-
                                     <p
-                                        class="text-xl
-                                               font-bold
+                                        class="text-xl font-bold
                                                text-gray-900"
                                     >
-                                        {{ $sweet->price }}
+                                        {{ $sweet->price }} JOD
                                     </p>
-
 
                                     <a
                                         href="{{ route(
                                             'hall-manager.sweets.show',
                                             $sweet
                                         ) }}"
-                                        class="inline-block
-                                               mt-4
-                                               text-pink-600
-                                               font-medium
+                                        class="inline-block mt-4
+                                               text-pink-600 font-medium
                                                hover:text-pink-800"
                                     >
                                         View Sweet →
@@ -773,38 +605,24 @@
                 @endif
 
 
-
                 <!-- Bottom Actions -->
 
                 <div
-                    class="border-t
-                           border-gray-200
-                           mt-8
-                           pt-6
-                           flex
-                           flex-wrap
-                           gap-4"
+                    class="border-t border-gray-200
+                           mt-8 pt-6 flex flex-wrap gap-4"
                 >
-
 
                     <!-- Back -->
 
                     <a
-                        href="{{ route(
-                            'hall-manager.halls.index'
-                        ) }}"
-                        class="px-6
-                               py-3
-                               rounded-xl
+                        href="{{ route('hall-manager.halls.index') }}"
+                        class="px-6 py-3 rounded-xl
                                border border-gray-300
-                               text-gray-700
-                               font-medium
-                               hover:bg-gray-50
-                               transition"
+                               text-gray-700 font-medium
+                               hover:bg-gray-50 transition"
                     >
                         ← Back to Halls
                     </a>
-
 
 
                     <!-- Delete -->
@@ -822,16 +640,11 @@
 
                         @method('DELETE')
 
-
                         <button
                             type="submit"
-                            class="px-6
-                                   py-3
-                                   rounded-xl
-                                   bg-red-600
-                                   text-white
-                                   font-semibold
-                                   hover:bg-red-700
+                            class="px-6 py-3 rounded-xl
+                                   bg-red-600 text-white
+                                   font-semibold hover:bg-red-700
                                    transition"
                         >
                             🗑️ Delete Hall

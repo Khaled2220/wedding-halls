@@ -1,8 +1,8 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -13,24 +13,18 @@
     <title>Edit {{ $hall->name }} - Hall Manager</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
 </head>
-
 
 <body class="bg-gray-50 min-h-screen">
 
-
 <!-- Header -->
-
 <header class="bg-blue-700 text-white shadow-lg">
 
     <div class="max-w-7xl mx-auto px-6 py-5">
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-
             <!-- Logo / Title -->
-
             <div>
 
                 <h1 class="text-3xl font-bold">
@@ -43,9 +37,7 @@
 
             </div>
 
-
             <!-- Navigation -->
-
             <div class="flex items-center gap-3">
 
                 <a
@@ -56,12 +48,10 @@
                     My Halls
                 </a>
 
-
                 <form
                     method="POST"
                     action="{{ route('logout') }}"
                 >
-
                     @csrf
 
                     <button
@@ -83,14 +73,10 @@
 </header>
 
 
-
 <!-- Main -->
-
 <main class="max-w-5xl mx-auto px-6 py-10">
 
-
     <!-- Back -->
-
     <div class="mb-6">
 
         <a
@@ -103,9 +89,7 @@
     </div>
 
 
-
     <!-- Page Title -->
-
     <div class="mb-8">
 
         <h2 class="text-4xl font-bold text-gray-800">
@@ -119,26 +103,20 @@
     </div>
 
 
-
     <!-- Success Message -->
-
     @if(session('success'))
 
         <div
             class="mb-6 bg-green-100 border border-green-300
                    text-green-800 px-5 py-4 rounded-xl"
         >
-
             {{ session('success') }}
-
         </div>
 
     @endif
 
 
-
     <!-- Validation Errors -->
-
     @if($errors->any())
 
         <div
@@ -167,9 +145,7 @@
     @endif
 
 
-
     <!-- Form -->
-
     <div class="bg-white rounded-2xl shadow-md p-8">
 
         <form
@@ -183,9 +159,7 @@
             @method('PUT')
 
 
-
             <!-- Hall Name -->
-
             <div class="mb-6">
 
                 <label
@@ -218,9 +192,7 @@
             </div>
 
 
-
             <!-- Description -->
-
             <div class="mb-6">
 
                 <label
@@ -251,9 +223,7 @@
             </div>
 
 
-
             <!-- Address -->
-
             <div class="mb-6">
 
                 <label
@@ -285,9 +255,7 @@
             </div>
 
 
-
             <!-- GPS Location -->
-
             <div class="mb-6 border border-blue-200 bg-blue-50 rounded-2xl p-5">
 
                 <div class="mb-4">
@@ -304,14 +272,10 @@
                 </div>
 
 
-
                 <!-- Latitude / Longitude -->
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-
                     <!-- Latitude -->
-
                     <div>
 
                         <label
@@ -348,9 +312,7 @@
                     </div>
 
 
-
                     <!-- Longitude -->
-
                     <div>
 
                         <label
@@ -389,9 +351,7 @@
                 </div>
 
 
-
                 <!-- GPS Button -->
-
                 <button
                     type="button"
                     onclick="getLocation()"
@@ -406,9 +366,7 @@
                 </button>
 
 
-
                 <!-- GPS Status -->
-
                 <p
                     id="location-status"
                     class="mt-3 text-sm text-gray-600"
@@ -417,9 +375,7 @@
             </div>
 
 
-
             <!-- Phone -->
-
             <div class="mb-6">
 
                 <label
@@ -451,14 +407,10 @@
             </div>
 
 
-
             <!-- Price & Capacity -->
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-
                 <!-- Price -->
-
                 <div>
 
                     <label
@@ -493,9 +445,7 @@
                 </div>
 
 
-
                 <!-- Capacity -->
-
                 <div>
 
                     <label
@@ -530,14 +480,10 @@
             </div>
 
 
-
             <!-- Food & Sweets -->
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-
                 <!-- Food -->
-
                 <div>
 
                     <label
@@ -593,9 +539,7 @@
                 </div>
 
 
-
                 <!-- Sweets -->
-
                 <div>
 
                     <label
@@ -653,9 +597,7 @@
             </div>
 
 
-
             <!-- Status -->
-
             <div class="mb-8">
 
                 <label
@@ -701,9 +643,7 @@
             </div>
 
 
-
             <!-- Current Images -->
-
             <div class="mb-8 pt-8 border-t border-gray-200">
 
                 <h3 class="text-2xl font-bold text-gray-800 mb-2">
@@ -776,9 +716,7 @@
             </div>
 
 
-
             <!-- Add New Images -->
-
             <div class="mb-8">
 
                 <label
@@ -822,17 +760,13 @@
             </div>
 
 
-
             <!-- Buttons -->
-
             <div
                 class="flex flex-col sm:flex-row gap-3
                        pt-6 border-t border-gray-200"
             >
 
-
                 <!-- Update Hall -->
-
                 <button
                     type="submit"
                     class="bg-blue-600 text-white px-8 py-3 rounded-xl
@@ -842,9 +776,7 @@
                 </button>
 
 
-
                 <!-- Update Food -->
-
                 <a
                     href="{{ route('hall-manager.foods.index') }}"
                     class="bg-green-600 text-white px-8 py-3 rounded-xl
@@ -855,9 +787,7 @@
                 </a>
 
 
-
                 <!-- Update Sweets -->
-
                 <a
                     href="{{ route('hall-manager.sweets.index') }}"
                     class="bg-pink-600 text-white px-8 py-3 rounded-xl
@@ -868,9 +798,7 @@
                 </a>
 
 
-
                 <!-- Cancel -->
-
                 <a
                     href="{{ route('hall-manager.halls.show', $hall) }}"
                     class="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl
@@ -882,7 +810,6 @@
 
             </div>
 
-
         </form>
 
     </div>
@@ -890,9 +817,7 @@
 </main>
 
 
-
 <!-- GPS JavaScript -->
-
 <script>
 
     function getLocation() {
@@ -911,7 +836,6 @@
 
 
         // Check browser support
-
         if (!navigator.geolocation) {
 
             status.textContent =
@@ -921,12 +845,10 @@
                 'mt-3 text-sm text-red-600';
 
             return;
-
         }
 
 
         // Loading
-
         button.disabled = true;
 
         button.textContent =
@@ -940,7 +862,6 @@
 
 
         // Get location
-
         navigator.geolocation.getCurrentPosition(
 
             function (position) {
@@ -1024,14 +945,6 @@
 </script>
 
 
-
 </body>
 
 </html>
-
-
-
-
-<div>
-    <!-- Always remember that you are absolutely unique. Just like everyone else. - Margaret Mead -->
-</div>

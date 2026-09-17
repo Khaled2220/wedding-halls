@@ -18,8 +18,7 @@ class CustomerHallController extends Controller
             ->get();
 
         return view(
-            'customer.halls.index',
-            compact('halls')
+            'customer.halls.index',compact('halls')
         );
     }
 
@@ -31,10 +30,7 @@ class CustomerHallController extends Controller
         /*
          * Customers can only view active halls.
          */
-        abort_if(
-            $hall->status !== 'active',
-            404
-        );
+        abort_if($hall->status !== 'active',404);
 
         /*
          * Load hall data.
@@ -46,8 +42,7 @@ class CustomerHallController extends Controller
         ]);
 
         return view(
-            'customer.halls.show',
-            compact('hall')
+            'customer.halls.show',compact('hall')
         );
     }
 }

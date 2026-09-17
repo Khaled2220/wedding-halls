@@ -1,7 +1,6 @@
 <x-app-layout>
 
     <x-slot name="header">
-
         <div class="flex justify-between items-center">
 
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -16,9 +15,7 @@
             </a>
 
         </div>
-
     </x-slot>
-
 
     <div class="py-8">
 
@@ -26,9 +23,7 @@
 
             <div class="bg-white shadow-sm rounded-lg p-6">
 
-
                 {{-- Validation Errors --}}
-
                 @if ($errors->any())
 
                     <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-4 rounded-lg">
@@ -49,19 +44,15 @@
 
                 @endif
 
-
                 <form
                     method="POST"
                     action="{{ route('hall-manager.job-posts.update', $jobPost) }}"
                 >
 
                     @csrf
-
                     @method('PUT')
 
-
                     {{-- Hall --}}
-
                     <div class="mb-6">
 
                         <label
@@ -91,11 +82,15 @@
 
                         </select>
 
+                        @error('hall_id')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
                     </div>
 
-
                     {{-- Job Title --}}
-
                     <div class="mb-6">
 
                         <label
@@ -111,14 +106,19 @@
                             name="title"
                             value="{{ old('title', $jobPost->title) }}"
                             class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Example: Waiter"
                             required
                         >
 
+                        @error('title')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
                     </div>
 
-
                     {{-- Description --}}
-
                     <div class="mb-6">
 
                         <label
@@ -133,13 +133,18 @@
                             name="description"
                             rows="5"
                             class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Describe the job responsibilities..."
                         >{{ old('description', $jobPost->description) }}</textarea>
+
+                        @error('description')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
 
                     </div>
 
-
                     {{-- Requirements --}}
-
                     <div class="mb-6">
 
                         <label
@@ -154,23 +159,28 @@
                             name="requirements"
                             rows="5"
                             class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Example: Previous experience, good communication skills..."
                         >{{ old('requirements', $jobPost->requirements) }}</textarea>
+
+                        @error('requirements')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
 
                     </div>
 
-
                     {{-- Salary + Employment Type --}}
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-
+                        {{-- Salary --}}
                         <div>
 
                             <label
                                 for="salary"
                                 class="block font-medium text-gray-700 mb-2"
                             >
-                                Salary
+                                Salary per Worker (JD)
                             </label>
 
                             <input
@@ -181,11 +191,19 @@
                                 min="0"
                                 step="0.01"
                                 class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Example: 50"
+                                required
                             >
+
+                            @error('salary')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
 
                         </div>
 
-
+                        {{-- Employment Type --}}
                         <div>
 
                             <label
@@ -228,23 +246,27 @@
 
                             </select>
 
+                            @error('employment_type')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
                         </div>
 
                     </div>
 
-
                     {{-- Workers Needed + Deadline --}}
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-
+                        {{-- Workers Needed --}}
                         <div>
 
                             <label
                                 for="workers_needed"
                                 class="block font-medium text-gray-700 mb-2"
                             >
-                                Workers Needed
+                                Number of Workers Needed
                             </label>
 
                             <input
@@ -257,9 +279,15 @@
                                 required
                             >
 
+                            @error('workers_needed')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
                         </div>
 
-
+                        {{-- Application Deadline --}}
                         <div>
 
                             <label
@@ -274,16 +302,160 @@
                                 type="date"
                                 name="deadline"
                                 value="{{ old('deadline', $jobPost->deadline?->format('Y-m-d')) }}"
+                                min="{{ date('Y-m-d') }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                             >
+
+                            @error('deadline')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
 
                         </div>
 
                     </div>
 
+                    {{-- Work Date + Start Time + End Time --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+                        {{-- Work Date --}}
+                        <div>
+
+                            <label
+                                for="job_date"
+                                class="block font-medium text-gray-700 mb-2"
+                            >
+                                Work Date
+                            </label>
+
+                            <input
+                                id="job_date"
+                                type="date"
+                                name="job_date"
+                                value="{{ old('job_date', $jobPost->job_date?->format('Y-m-d')) }}"
+                                min="{{ date('Y-m-d') }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            >
+
+                            @error('job_date')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
+                        </div>
+
+                        {{-- Start Time --}}
+                        <div>
+
+                            <label
+                                for="start_time"
+                                class="block font-medium text-gray-700 mb-2"
+                            >
+                                Start Time
+                            </label>
+
+                            <input
+                                id="start_time"
+                                type="time"
+                                name="start_time"
+                                value="{{ old('start_time', $jobPost->start_time?->format('H:i')) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            >
+
+                            @error('start_time')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
+                        </div>
+
+                        {{-- End Time --}}
+                        <div>
+
+                            <label
+                                for="end_time"
+                                class="block font-medium text-gray-700 mb-2"
+                            >
+                                End Time
+                            </label>
+
+                            <input
+                                id="end_time"
+                                type="time"
+                                name="end_time"
+                                value="{{ old('end_time', $jobPost->end_time?->format('H:i')) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            >
+
+                            @error('end_time')
+                                <p class="text-red-600 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                    {{-- Payment Summary --}}
+                    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+
+                        <h3 class="font-semibold text-gray-800 mb-3">
+                            Payment Summary
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                            {{-- Salary --}}
+                            <div>
+
+                                <p class="text-sm text-gray-600">
+                                    Salary per Worker
+                                </p>
+
+                                <p class="text-lg font-semibold">
+                                    <span id="salary_preview">0.00</span> JD
+                                </p>
+
+                            </div>
+
+                            {{-- Workers --}}
+                            <div>
+
+                                <p class="text-sm text-gray-600">
+                                    Workers Needed
+                                </p>
+
+                                <p class="text-lg font-semibold">
+                                    <span id="workers_preview">0</span>
+                                </p>
+
+                            </div>
+
+                            {{-- Total --}}
+                            <div>
+
+                                <p class="text-sm text-gray-600">
+                                    Total Payment
+                                </p>
+
+                                <p class="text-lg font-semibold">
+                                    <span id="total_preview">0.00</span> JD
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                     {{-- Status --}}
-
                     <div class="mb-8">
 
                         <label
@@ -316,11 +488,15 @@
 
                         </select>
 
+                        @error('status')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
                     </div>
 
-
                     {{-- Buttons --}}
-
                     <div class="flex items-center gap-3">
 
                         <button
@@ -339,7 +515,6 @@
 
                     </div>
 
-
                 </form>
 
             </div>
@@ -347,5 +522,43 @@
         </div>
 
     </div>
+
+    {{-- Payment Summary JavaScript --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const salaryInput = document.getElementById('salary');
+            const workersInput = document.getElementById('workers_needed');
+
+            const salaryPreview = document.getElementById('salary_preview');
+            const workersPreview = document.getElementById('workers_preview');
+            const totalPreview = document.getElementById('total_preview');
+
+            function updatePaymentSummary() {
+
+                const salary = parseFloat(salaryInput.value) || 0;
+                const workers = parseInt(workersInput.value) || 0;
+
+                const total = salary * workers;
+
+                salaryPreview.textContent = salary.toFixed(2);
+                workersPreview.textContent = workers;
+                totalPreview.textContent = total.toFixed(2);
+            }
+
+            salaryInput.addEventListener(
+                'input',
+                updatePaymentSummary
+            );
+
+            workersInput.addEventListener(
+                'input',
+                updatePaymentSummary
+            );
+
+            updatePaymentSummary();
+
+        });
+    </script>
 
 </x-app-layout>

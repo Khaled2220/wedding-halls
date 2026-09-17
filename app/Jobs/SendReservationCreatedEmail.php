@@ -31,9 +31,7 @@ class SendReservationCreatedEmail implements ShouldQueue
         }
         Notification::route('mail', $customer->email)
             ->notify(
-                new ReservationCreatedNotification(
-                    $this->reservation
-                )
+                new ReservationCreatedNotification($this->reservation)
             );
     }
 }

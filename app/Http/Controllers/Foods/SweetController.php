@@ -34,16 +34,14 @@ class SweetController extends Controller
             })
             ->whereHas('hall', function ($query) {
                 $query->where(
-                    'hall_manager_id',
-                    auth()->id()
+                    'hall_manager_id',auth()->id()
                 );
             })
             ->latest()
             ->get();
 
         return view(
-            'hall-manager.foods.sweets.index',
-            compact('sweets', 'hall')
+            'hall-manager.foods.sweets.index',compact('sweets', 'hall')
         );
     }
 
@@ -58,8 +56,7 @@ class SweetController extends Controller
             'images',
         ]);
         return view(
-            'hall-manager.foods.sweets.show',
-            compact('sweet')
+            'hall-manager.foods.sweets.show',compact('sweet')
         );
     }
 
@@ -70,20 +67,15 @@ class SweetController extends Controller
     {
         $hallId = $request->query('hall_id');
         if (!$hallId) {
-            return redirect()
-                ->route('hall-manager.halls.index')
-                ->with(
-                    'error',
-                    'Please select a hall first.'
-                );
+            return redirect()->route('hall-manager.halls.index')
+                ->with('error','Please select a hall first.');
         }
         $hall = Hall::where('id', $hallId)
             ->where('hall_manager_id', auth()->id())
             ->firstOrFail();
 
         return view(
-            'hall-manager.foods.sweets.create',
-            compact('hall')
+            'hall-manager.foods.sweets.create',compact('hall')
         );
     }
 
@@ -96,6 +88,7 @@ class SweetController extends Controller
         $hall = Hall::where('id', $validated['hall_id'])
             ->where('hall_manager_id', auth()->id())
             ->firstOrFail();
+
         $sweet = Sweet::create([
             'hall_id' => $hall->id,
             'price' => $validated['price'],
@@ -111,17 +104,13 @@ class SweetController extends Controller
                 ]);
             }
         }
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.sweets.index',
                 [
                     'hall_id' => $hall->id,
                 ]
             )
-            ->with(
-                'success',
-                'Sweet added successfully.'
-            );
+            ->with('success','Sweet added successfully.');
     }
 
     /**
@@ -135,8 +124,7 @@ class SweetController extends Controller
             'images',
         ]);
         return view(
-            'hall-manager.foods.sweets.edit',
-            compact('sweet')
+            'hall-manager.foods.sweets.edit',compact('sweet')
         );
     }
 
@@ -162,17 +150,13 @@ class SweetController extends Controller
                 ]);
             }
         }
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.sweets.index',
                 [
                     'hall_id' => $sweet->hall_id,
                 ]
             )
-            ->with(
-                'success',
-                'Sweet updated successfully.'
-            );
+            ->with('success','Sweet updated successfully.');
     }
 
     /**
@@ -188,17 +172,13 @@ class SweetController extends Controller
                 ->delete($image->image_path);
         }
         $sweet->delete();
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.sweets.index',
                 [
                     'hall_id' => $hallId,
                 ]
             )
-            ->with(
-                'success',
-                'Sweet deleted successfully.'
-            );
+            ->with('success','Sweet deleted successfully.');
     }
 
     /**
@@ -206,10 +186,6 @@ class SweetController extends Controller
      */
     private function authorizeSweet(Sweet $sweet): void 
     {
-        abort_unless(
-            $sweet->hall &&
-            $sweet->hall->hall_manager_id === auth()->id(),
-            403
-        );
+        abort_unless($sweet->hall &&$sweet->hall->hall_manager_id === auth()->id(),403);
     }
 }

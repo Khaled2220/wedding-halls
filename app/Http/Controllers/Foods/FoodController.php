@@ -39,16 +39,14 @@ class FoodController extends Controller
             })
             ->whereHas('hall', function ($query) {
                 $query->where(
-                    'hall_manager_id',
-                    auth()->id()
+                    'hall_manager_id',auth()->id()
                 );
             })
             ->latest()
             ->get();
 
         return view(
-            'hall-manager.foods.index',
-            compact('foods', 'hall')
+            'hall-manager.foods.index',compact('foods', 'hall')
         );
     }
 
@@ -64,8 +62,7 @@ class FoodController extends Controller
             'images',
         ]);
         return view(
-            'hall-manager.foods.show',
-            compact('food')
+            'hall-manager.foods.show',compact('food')
         );
     }
 
@@ -77,11 +74,8 @@ class FoodController extends Controller
     {
         $hallId = $request->query('hall_id');
         if (!$hallId) {
-            return redirect()
-                ->route('hall-manager.halls.index')
-                ->with(
-                    'error',
-                    'Please select a hall first.'
+            return redirect()->route('hall-manager.halls.index')
+                ->with('error','Please select a hall first.'
                 );
         }
         $hall = Hall::where('id', $hallId)
@@ -89,8 +83,7 @@ class FoodController extends Controller
             ->firstOrFail();
 
         return view(
-            'hall-manager.foods.create',
-            compact('hall')
+            'hall-manager.foods.create',compact('hall')
         );
     }
 
@@ -103,6 +96,7 @@ class FoodController extends Controller
         $hall = Hall::where('id', $validated['hall_id'])
             ->where('hall_manager_id', auth()->id())
             ->firstOrFail();
+
         $food = Food::create([
             'hall_id' => $hall->id,
             'price' => $validated['price'],
@@ -118,17 +112,13 @@ class FoodController extends Controller
                 ]);
             }
         }
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.foods.index',
                 [
                     'hall_id' => $hall->id,
                 ]
             )
-            ->with(
-                'success',
-                'Food added successfully.'
-            );
+            ->with('success','Food added successfully.');
     }
 
 
@@ -143,8 +133,7 @@ class FoodController extends Controller
             'images',
         ]);
         return view(
-            'hall-manager.foods.edit',
-            compact('food')
+            'hall-manager.foods.edit',compact('food')
         );
     }
 
@@ -152,10 +141,8 @@ class FoodController extends Controller
     /**
      * Update food.
      */
-    public function update(
-        UpdateFoodRequest $request,
-        Food $food
-    ) {
+    public function update(UpdateFoodRequest $request,Food $food) 
+    {
         $this->authorizeFood($food);
         $validated = $request->validated();
         $food->update([
@@ -172,17 +159,13 @@ class FoodController extends Controller
                 ]);
             }
         }
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.foods.index',
                 [
                     'hall_id' => $food->hall_id,
                 ]
             )
-            ->with(
-                'success',
-                'Food updated successfully.'
-            );
+            ->with('success','Food updated successfully.');
     }
 
 
@@ -199,17 +182,13 @@ class FoodController extends Controller
                 ->delete($image->image_path);
         }
         $food->delete();
-        return redirect()
-            ->route(
+        return redirect()->route(
                 'hall-manager.foods.index',
                 [
                     'hall_id' => $hallId,
                 ]
             )
-            ->with(
-                'success',
-                'Food deleted successfully.'
-            );
+            ->with('success','Food deleted successfully.');
     }
 
 
@@ -219,10 +198,6 @@ class FoodController extends Controller
      */
     private function authorizeFood(Food $food): void 
     {
-        abort_unless(
-            $food->hall &&
-            $food->hall->hall_manager_id === auth()->id(),
-            403
-        );
+        abort_unless($food->hall && $food->hall->hall_manager_id === auth()->id(),403);
     }
 }

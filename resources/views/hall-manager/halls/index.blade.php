@@ -18,6 +18,7 @@
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
+            <!-- Logo / Title -->
             <div>
 
                 <h1 class="text-3xl font-bold">
@@ -30,22 +31,31 @@
 
             </div>
 
+
+            <!-- Navigation -->
             <div class="flex flex-wrap items-center gap-3">
 
+                <!-- My Halls -->
                 <a
                     href="{{ route('hall-manager.halls.index') }}"
-                    class="bg-white text-blue-700 px-5 py-2 rounded-lg font-semibold hover:bg-blue-50 transition"
+                    class="bg-white text-blue-700 px-5 py-2 rounded-lg
+                           font-semibold hover:bg-blue-50 transition"
                 >
                     My Halls
                 </a>
 
+
+                <!-- Reservations -->
                 <a
-                href="{{ route('hall-manager.reservations.index') }}"class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg transition">
-                Reservations
+                    href="{{ route('hall-manager.reservations.index') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white
+                           font-semibold px-5 py-2 rounded-lg transition"
+                >
+                    Reservations
                 </a>
 
 
-
+                <!-- Logout -->
                 <form
                     method="POST"
                     action="{{ route('logout') }}"
@@ -55,7 +65,8 @@
 
                     <button
                         type="submit"
-                        class="bg-blue-900 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-950 transition"
+                        class="bg-blue-900 text-white px-5 py-2 rounded-lg
+                               font-semibold hover:bg-blue-950 transition"
                     >
                         Logout
                     </button>
@@ -73,6 +84,7 @@
 
 <main class="max-w-7xl mx-auto px-6 py-10">
 
+    <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
 
         <div>
@@ -88,11 +100,14 @@
         </div>
 
 
+        <!-- Add Hall -->
         <div class="flex flex-wrap gap-3">
 
             <a
                 href="{{ route('hall-manager.halls.create') }}"
-                class="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition shadow"
+                class="inline-flex items-center justify-center
+                       bg-blue-600 text-white px-6 py-3 rounded-xl
+                       font-semibold hover:bg-blue-700 transition shadow"
             >
                 🏛️ + Add New Hall
             </a>
@@ -102,20 +117,26 @@
     </div>
 
 
+    <!-- Success Message -->
     @if(session('success'))
 
-        <div class="mb-6 bg-green-100 border border-green-300 text-green-800 px-5 py-4 rounded-xl">
-
+        <div
+            class="mb-6 bg-green-100 border border-green-300
+                   text-green-800 px-5 py-4 rounded-xl"
+        >
             {{ session('success') }}
-
         </div>
 
     @endif
 
 
+    <!-- Validation Errors -->
     @if($errors->any())
 
-        <div class="mb-6 bg-red-100 border border-red-300 text-red-800 px-5 py-4 rounded-xl">
+        <div
+            class="mb-6 bg-red-100 border border-red-300
+                   text-red-800 px-5 py-4 rounded-xl"
+        >
 
             <ul class="list-disc list-inside">
 
@@ -134,21 +155,27 @@
     @endif
 
 
+    <!-- Halls -->
     @if($halls->count() > 0)
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
             @foreach($halls as $hall)
 
-                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition">
+                <div
+                    class="bg-white rounded-2xl shadow-md
+                           hover:shadow-xl transition"
+                >
 
                     <div class="p-6">
 
+                        <!-- Hall Name -->
                         <h3 class="mb-3">
 
                             <a
                                 href="{{ route('hall-manager.halls.show', $hall) }}"
-                                class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition"
+                                class="text-2xl font-bold text-gray-800
+                                       hover:text-blue-600 transition"
                             >
                                 {{ $hall->name }}
                             </a>
@@ -156,6 +183,7 @@
                         </h3>
 
 
+                        <!-- Description -->
                         @if($hall->description)
 
                             <p class="text-gray-600 mb-5 line-clamp-3">
@@ -165,6 +193,7 @@
                         @endif
 
 
+                        <!-- Address -->
                         <div class="flex items-start gap-2 mb-3">
 
                             <span class="text-blue-600">
@@ -178,6 +207,7 @@
                         </div>
 
 
+                        <!-- Phone -->
                         @if($hall->phone)
 
                             <div class="flex items-center gap-2 mb-3">
@@ -195,6 +225,7 @@
                         @endif
 
 
+                        <!-- Price -->
                         <div class="flex items-center gap-2 mb-3">
 
                             <span class="text-blue-600">
@@ -208,6 +239,7 @@
                         </div>
 
 
+                        <!-- Capacity -->
                         @if($hall->capacity)
 
                             <div class="flex items-center gap-2 mb-4">
@@ -225,6 +257,7 @@
                         @endif
 
 
+                        <!-- Food -->
                         @if($hall->food)
 
                             <div class="mb-2">
@@ -242,6 +275,7 @@
                         @endif
 
 
+                        <!-- Sweets -->
                         @if($hall->sweets)
 
                             <div class="mb-4">
@@ -259,17 +293,26 @@
                         @endif
 
 
+                        <!-- Status -->
                         <div class="mb-5">
 
                             @if($hall->status === 'active')
 
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                                <span
+                                    class="inline-flex items-center px-3 py-1
+                                           rounded-full text-sm font-semibold
+                                           bg-green-100 text-green-700"
+                                >
                                     Active
                                 </span>
 
                             @else
 
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-700">
+                                <span
+                                    class="inline-flex items-center px-3 py-1
+                                           rounded-full text-sm font-semibold
+                                           bg-red-100 text-red-700"
+                                >
                                     Inactive
                                 </span>
 
@@ -278,24 +321,35 @@
                         </div>
 
 
-                        <div class="flex items-center gap-3 pt-4 border-t border-gray-100">
+                        <!-- Actions -->
+                        <div
+                            class="flex items-center gap-3 pt-4
+                                   border-t border-gray-100"
+                        >
 
+                            <!-- View -->
                             <a
                                 href="{{ route('hall-manager.halls.show', $hall) }}"
-                                class="flex-1 text-center bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+                                class="flex-1 text-center bg-blue-600
+                                       text-white px-4 py-2 rounded-lg
+                                       font-semibold hover:bg-blue-700 transition"
                             >
                                 View
                             </a>
 
 
+                            <!-- Edit -->
                             <a
                                 href="{{ route('hall-manager.halls.edit', $hall) }}"
-                                class="flex-1 text-center bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition"
+                                class="flex-1 text-center bg-gray-100
+                                       text-gray-700 px-4 py-2 rounded-lg
+                                       font-semibold hover:bg-gray-200 transition"
                             >
                                 Edit
                             </a>
 
 
+                            <!-- Delete -->
                             <form
                                 method="POST"
                                 action="{{ route('hall-manager.halls.destroy', $hall) }}"
@@ -304,11 +358,14 @@
                             >
 
                                 @csrf
+
                                 @method('DELETE')
 
                                 <button
                                     type="submit"
-                                    class="w-full bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 transition"
+                                    class="w-full bg-red-100 text-red-700
+                                           px-4 py-2 rounded-lg
+                                           font-semibold hover:bg-red-200 transition"
                                 >
                                     Delete
                                 </button>
@@ -327,7 +384,11 @@
 
     @else
 
-        <div class="bg-white rounded-2xl shadow-md p-12 text-center">
+        <!-- Empty State -->
+        <div
+            class="bg-white rounded-2xl shadow-md
+                   p-12 text-center"
+        >
 
             <div class="text-6xl mb-5">
                 🏛️
@@ -343,7 +404,10 @@
 
             <a
                 href="{{ route('hall-manager.halls.create') }}"
-                class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                class="inline-flex items-center
+                       bg-blue-600 text-white px-6 py-3
+                       rounded-xl font-semibold
+                       hover:bg-blue-700 transition"
             >
                 + Add Your First Hall
             </a>
@@ -355,11 +419,5 @@
 </main>
 
 </body>
+
 </html>
-
-
-
-
-<div>
-    <!-- Do what you can, with what you have, where you are. - Theodore Roosevelt -->
-</div>

@@ -24,8 +24,7 @@ class HallController extends Controller
             ->get();
 
         return view(
-            'hall-manager.halls.index',
-            compact('halls')
+            'hall-manager.halls.index',compact('halls')
         );
     }
 
@@ -124,12 +123,8 @@ class HallController extends Controller
                 }
             }
         });
-        return redirect()
-            ->route('hall-manager.halls.index')
-            ->with(
-                'success',
-                'Hall, food, sweet and images created successfully.'
-            );
+        return redirect()->route('hall-manager.halls.index')
+            ->with('success','Hall, food, sweet and images created successfully.');
     }
 
     /**
@@ -137,19 +132,15 @@ class HallController extends Controller
      */
     public function show(Hall $hall)
     {
-        abort_unless(
-            $hall->hall_manager_id === auth()->id(),
-            403
-        );
+        abort_unless($hall->hall_manager_id === auth()->id(),403);
+
         $hall->load([
             'images',
             'foods.images',
             'sweetItems.images',
         ]);
         return view(
-            'hall-manager.halls.show',
-            compact('hall')
-        );
+            'hall-manager.halls.show',compact('hall'));
     }
 
     /**
@@ -157,28 +148,22 @@ class HallController extends Controller
      */
     public function edit(Hall $hall)
     {
-        abort_unless(
-            $hall->hall_manager_id === auth()->id(),
-            403
-        );
+        abort_unless($hall->hall_manager_id === auth()->id(),403 );
+      
         $hall->load('images');
+
         return view(
-            'hall-manager.halls.edit',
-            compact('hall')
+            'hall-manager.halls.edit',compact('hall')
         );
     }
 
     /**
      * Update a hall.
      */
-    public function update(
-        UpdateHallRequest $request,
-        Hall $hall
-    ) {
-        abort_unless(
-            $hall->hall_manager_id === auth()->id(),
-            403
-        );
+    public function update(UpdateHallRequest $request,Hall $hall) 
+    {
+        abort_unless($hall->hall_manager_id === auth()->id(),403);
+
         $validated = $request->validated();
         $hall->update([
             'name' =>$validated['name'],
@@ -232,15 +217,8 @@ class HallController extends Controller
                 ]);
             }
         }
-        return redirect()
-            ->route(
-                'hall-manager.halls.show',
-                $hall
-            )
-            ->with(
-                'success',
-                'Hall updated successfully.'
-            );
+        return redirect()->route('hall-manager.halls.show',$hall)
+            ->with('success','Hall updated successfully.');
     }
 
     /**
@@ -248,10 +226,8 @@ class HallController extends Controller
      */
     public function destroy(Hall $hall)
     {
-        abort_unless(
-            $hall->hall_manager_id === auth()->id(),
-            403
-        );
+        abort_unless($hall->hall_manager_id === auth()->id(),403);
+        
         $hall->load('images');
         foreach ($hall->images as $hallImage) {
             Storage::disk('public')->delete(
@@ -259,13 +235,8 @@ class HallController extends Controller
             );
         }
         $hall->delete();
-        return redirect()
-            ->route(
-                'hall-manager.halls.index'
-            )
-            ->with(
-                'success',
-                'Hall deleted successfully.'
-            );
+
+        return redirect()->route('hall-manager.halls.index')
+            ->with('success','Hall deleted successfully.');
     }
 }
