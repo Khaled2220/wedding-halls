@@ -16,6 +16,7 @@ return new class extends Migration
                 ->after('id')
                 ->constrained('foods')
                 ->cascadeOnDelete();
+                
             $table->string('image_path')
                 ->after('food_id');    
         });
