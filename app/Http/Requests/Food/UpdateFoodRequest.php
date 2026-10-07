@@ -12,7 +12,7 @@ class UpdateFoodRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,9 @@ class UpdateFoodRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'price' => [ 'required', 'numeric', 'min:0', ],
+            'images' => [ 'nullable', 'array', ],
+            'images.*' => [ 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', ],
         ];
     }
 }

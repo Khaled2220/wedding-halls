@@ -77,10 +77,7 @@ class FoodController extends Controller
 
         $food = $this->foodService->createFood($validated, $request->file('images', []));
 
-        return redirect()->route('hall-manager.foods.index',
-                [
-                    'hall_id' => $food->hall_id,
-                ])
+        return redirect()->route('hall-manager.foods.index',[ 'hall_id' => $food->hall_id, ])
             ->with('success','Food added successfully.');
     }
 
@@ -105,11 +102,7 @@ class FoodController extends Controller
 
         $this->foodService->updateFood($food,$validated,$request->file('images', []));
 
-        return redirect()->route('hall-manager.foods.index',
-                [
-                    'hall_id' => $food->hall_id,
-                ]
-            )
+        return redirect()->route('hall-manager.foods.index',[ 'hall_id' => $food->hall_id, ])
             ->with('success','Food updated successfully.');
     }
 
@@ -121,10 +114,7 @@ class FoodController extends Controller
     {
         $hallId = $this->foodService->deleteFood($food);
 
-        return redirect()->route('hall-manager.foods.index',
-                [
-                    'hall_id' => $hallId,
-                ])
+        return redirect()->route('hall-manager.foods.index',[ 'hall_id' => $hallId, ])
             ->with('success','Food deleted successfully.');
     }
 }
