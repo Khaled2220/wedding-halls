@@ -22,8 +22,6 @@ class UpdateReservationDateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'reservation_date' => [ 'required', 'date', 'after_or_equal:' . now() ->addDays(14) ->format('Y-m-d'), ],
-        ];
+        return ['reservation_date' => [ 'required', 'date', 'after_or_equal:' . now() ->addDays(14) ->format('Y-m-d'), ],];
     }
 }

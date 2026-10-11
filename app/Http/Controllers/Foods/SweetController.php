@@ -77,10 +77,7 @@ class SweetController extends Controller
 
         $sweet = $this->sweetService->createSweet($validated, $request->file('images', []));
 
-        return redirect()->route('hall-manager.sweets.index',
-                [
-                    'hall_id' => $sweet->hall_id,
-                ])
+        return redirect()->route('hall-manager.sweets.index',['hall_id' => $sweet->hall_id,])
             ->with( 'success','Sweet added successfully.');
     }
 
@@ -106,10 +103,7 @@ class SweetController extends Controller
 
         $this->sweetService->updateSweet($sweet,$validated,$request->file('images', []));
 
-        return redirect()->route('hall-manager.sweets.index',
-                [
-                    'hall_id' => $sweet->hall_id,
-                ])
+        return redirect()->route('hall-manager.sweets.index',['hall_id' => $sweet->hall_id,])
             ->with('success','Sweet updated successfully.');
     }
 
@@ -121,10 +115,7 @@ class SweetController extends Controller
     {
         $hallId = $this->sweetService->deleteSweet($sweet);
 
-        return redirect()->route('hall-manager.sweets.index',
-                [
-                    'hall_id' => $hallId,
-                ])
+        return redirect()->route('hall-manager.sweets.index',['hall_id' => $hallId,])
             ->with('success','Sweet deleted successfully.');
     }
 }

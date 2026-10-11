@@ -32,30 +32,22 @@ class Reservation extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(
-            User::class,
-            'customer_id'
-        );
+        return $this->belongsTo(User::class,'customer_id');
     }
 
     public function hall(): BelongsTo
     {
-        return $this->belongsTo(
-            Hall::class,'hall_id'
-        );
+        return $this->belongsTo(Hall::class,'hall_id');
     }
 
     public function payment(): HasOne
     {
-        return $this->hasOne(
-            Payment::class,'reservation_id'
-        );
+        return $this->hasOne(Payment::class,'reservation_id');
     }
 
     public function foods(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Food::class,
+        return $this->belongsToMany(Food::class,
             'reservation_food',
             'reservation_id',
             'food_id'
@@ -66,8 +58,7 @@ class Reservation extends Model
 
     public function sweets(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Sweet::class,
+        return $this->belongsToMany(Sweet::class,
             'reservation_sweet',
             'reservation_id',
             'sweet_id'

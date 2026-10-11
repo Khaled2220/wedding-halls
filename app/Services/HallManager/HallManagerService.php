@@ -116,9 +116,7 @@ class HallManagerService
     public function getHall(Hall $hall,int $hallManagerId): Hall 
     {
         $this->authorizeHall($hall,$hallManagerId);
-
         $hall->load(['images','foods.images','sweetItems.images',]);
-
         return $hall;
     }
 
@@ -128,9 +126,7 @@ class HallManagerService
     public function getHallForEdit(Hall $hall,int $hallManagerId): Hall 
     {
         $this->authorizeHall($hall,$hallManagerId);
-
         $hall->load('images');
-
         return $hall;
     }
 
@@ -167,7 +163,6 @@ class HallManagerService
                 Storage::disk('public')->delete(
                     $hallImage->image
                 );
-
                 $hallImage->delete();
             }
         }
@@ -175,7 +170,6 @@ class HallManagerService
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('halls','public');
-
                 HallImage::create(['hall_id' => $hall->id,'image' => $path,]);
             }
         }
@@ -187,13 +181,11 @@ class HallManagerService
     public function deleteHall(Hall $hall,int $hallManagerId): void 
     {
         $this->authorizeHall($hall,$hallManagerId);
-
         $hall->load('images');
 
         foreach ($hall->images as $hallImage) {
             Storage::disk('public')->delete($hallImage->image);
         }
-
         $hall->delete();
     }
 

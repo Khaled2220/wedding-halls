@@ -32,10 +32,7 @@ class Hall extends Model
      */
     public function hallManager()
     {
-        return $this->belongsTo(
-            User::class,
-            'hall_manager_id'
-        );
+        return $this->belongsTo(User::class,'hall_manager_id');
     }
 
     /**
@@ -43,10 +40,7 @@ class Hall extends Model
      */
     public function images()
     {
-        return $this->hasMany(
-            HallImage::class,
-            'hall_id'
-        );
+        return $this->hasMany(HallImage::class,'hall_id');
     }
 
     /**
@@ -54,10 +48,7 @@ class Hall extends Model
      */
     public function foods()
     {
-        return $this->hasMany(
-            Food::class,
-            'hall_id'
-        );
+        return $this->hasMany(Food::class,'hall_id');
     }
 
     /**
@@ -68,10 +59,7 @@ class Hall extends Model
      */
     public function sweetItems()
     {
-        return $this->hasMany(
-            Sweet::class,
-            'hall_id'
-        );
+        return $this->hasMany(Sweet::class,'hall_id');
     }
 
     public function jobPosts()

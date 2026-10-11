@@ -42,7 +42,6 @@ class SweetService
     public function getSweet(Sweet $sweet): Sweet
     {
         $this->authorizeSweet($sweet);
-
         return $sweet->load([ 'hall', 'images',]);
     }
 
@@ -57,7 +56,6 @@ class SweetService
                     ->with('error','Please select a hall first.')
             );
         }
-
         return Hall::where('id', $hallId)
             ->where('hall_manager_id', auth()->id())
             ->firstOrFail();
@@ -79,7 +77,6 @@ class SweetService
         ]);
 
         $this->storeImages($sweet, $images);
-
         return $sweet;
     }
 
@@ -90,13 +87,8 @@ class SweetService
     public function updateSweet(Sweet $sweet,array $data,array $images = []): Sweet 
     {
         $this->authorizeSweet($sweet);
-
-        $sweet->update([
-            'price' => $data['price'],
-        ]);
-
+        $sweet->update(['price' => $data['price'],]);
         $this->storeImages($sweet, $images);
-
         return $sweet->fresh(['hall','images',]);
     }
 
@@ -107,18 +99,14 @@ class SweetService
     public function deleteSweet(Sweet $sweet): int
     {
         $this->authorizeSweet($sweet);
-
         $hallId = $sweet->hall_id;
-
         $sweet->load('images');
 
         foreach ($sweet->images as $image) {
             Storage::disk('public')
                 ->delete($image->image_path);
         }
-
         $sweet->delete();
-
         return $hallId;
     }
 
@@ -132,9 +120,7 @@ class SweetService
             if (!$image instanceof UploadedFile) {
                 continue;
             }
-
             $path = $image->store( 'sweets', 'public');
-
             $sweet->images()->create([ 'image_path' => $path,]);
         }
     }

@@ -61,7 +61,6 @@ class FoodController extends Controller
     public function create(Request $request)
     {
         $hallId = $request->query('hall_id');
-
         $hall = $this->foodService->getHallForCreate( $hallId ? (int) $hallId : null);
 
         return view('hall-manager.foods.create',compact('hall'));
@@ -74,7 +73,6 @@ class FoodController extends Controller
     public function store(StoreFoodRequest $request)
     {
         $validated = $request->validated();
-
         $food = $this->foodService->createFood($validated, $request->file('images', []));
 
         return redirect()->route('hall-manager.foods.index',[ 'hall_id' => $food->hall_id, ])
@@ -88,7 +86,6 @@ class FoodController extends Controller
     public function edit(Food $food)
     {
         $food = $this->foodService->getFood($food);
-
         return view('hall-manager.foods.edit',compact('food'));
     }
 
@@ -99,7 +96,6 @@ class FoodController extends Controller
     public function update(UpdateFoodRequest $request,Food $food) 
     {
         $validated = $request->validated();
-
         $this->foodService->updateFood($food,$validated,$request->file('images', []));
 
         return redirect()->route('hall-manager.foods.index',[ 'hall_id' => $food->hall_id, ])

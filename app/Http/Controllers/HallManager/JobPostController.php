@@ -22,9 +22,7 @@ class JobPostController extends Controller
             ->latest()
             ->get();
 
-        return view(
-            'hall-manager.job-posts.index',compact('jobPosts')
-        );
+        return view('hall-manager.job-posts.index',compact('jobPosts'));
     }
 
     /**
@@ -36,9 +34,7 @@ class JobPostController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view(
-            'hall-manager.job-posts.create',compact('halls')
-        );
+        return view('hall-manager.job-posts.create',compact('halls'));
     }
 
     /**
@@ -55,9 +51,7 @@ class JobPostController extends Controller
         if (!$hall) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'hall_id' => 'You are not authorized to use this hall.',
-                ]);
+                ->withErrors(['hall_id' => 'You are not authorized to use this hall.',]);
         }
 
         JobPost::create([
@@ -86,12 +80,9 @@ class JobPostController extends Controller
     public function show(JobPost $jobPost): View
     {
         abort_unless($jobPost->hall_manager_id === auth()->id(),403);
-
         $jobPost->load('hall');
 
-        return view(
-            'hall-manager.job-posts.show',compact('jobPost')
-        );
+        return view('hall-manager.job-posts.show',compact('jobPost'));
     }
 
     /**
@@ -105,9 +96,7 @@ class JobPostController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view(
-            'hall-manager.job-posts.edit',compact('jobPost', 'halls')
-        );
+        return view('hall-manager.job-posts.edit',compact('jobPost', 'halls'));
     }
 
     /**
@@ -116,7 +105,6 @@ class JobPostController extends Controller
     public function update(UpdateJobPostRequest $request,JobPost $jobPost): RedirectResponse
     {
         abort_unless($jobPost->hall_manager_id === auth()->id(),403);
-
         $validated = $request->validated();
 
         $hall = Hall::where('id', $validated['hall_id'])
@@ -126,9 +114,7 @@ class JobPostController extends Controller
         if (!$hall) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'hall_id' => 'You are not authorized to use this hall.',
-                ]);
+                ->withErrors(['hall_id' => 'You are not authorized to use this hall.',]);
         }
 
         $jobPost->update([
@@ -156,7 +142,6 @@ class JobPostController extends Controller
     public function destroy(JobPost $jobPost): RedirectResponse
     {
         abort_unless($jobPost->hall_manager_id === auth()->id(),403);
-
         $jobPost->delete();
 
         return redirect()->route('hall-manager.job-posts.index')

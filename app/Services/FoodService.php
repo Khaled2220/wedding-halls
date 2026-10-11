@@ -81,7 +81,6 @@ class FoodService
         ]);
 
         $this->storeImages($food, $images);
-
         return $food;
     }
 
@@ -91,11 +90,7 @@ class FoodService
     public function updateFood(Food $food, array $data, array $images = [] ): Food 
     {
         $this->authorizeFood($food);
-
-        $food->update([
-            'price' => $data['price'],
-        ]);
-
+        $food->update(['price' => $data['price'],]);
         $this->storeImages($food, $images);
 
         return $food->fresh(['hall', 'images',]);
@@ -107,18 +102,14 @@ class FoodService
     public function deleteFood(Food $food): int
     {
         $this->authorizeFood($food);
-
         $hallId = $food->hall_id;
-
         $food->load('images');
 
         foreach ($food->images as $image) {
             Storage::disk('public')
                 ->delete($image->image_path);
         }
-
         $food->delete();
-
         return $hallId;
     }
 
@@ -131,9 +122,7 @@ class FoodService
             if (!$image instanceof UploadedFile) {
                 continue;
             }
-
             $path = $image->store('foods','public');
-
             $food->images()->create(['image_path' => $path,]);
         }
     }

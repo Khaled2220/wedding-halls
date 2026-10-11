@@ -96,10 +96,7 @@ class WorkerService
             return 'The application deadline has passed.';
         }
 
-        $alreadyApplied = JobApplication::where(
-            'job_post_id',
-            $jobPost->id
-        )
+        $alreadyApplied = JobApplication::where('job_post_id',$jobPost->id)
             ->where(
                 'worker_id',
                 $workerId
@@ -109,7 +106,6 @@ class WorkerService
         if ($alreadyApplied) {
             return 'You have already applied for this job.';
         }
-
         return null;
     }
 

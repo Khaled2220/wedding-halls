@@ -3,47 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Worker\StoreJobApplicationRequest;
-use App\Models\JobApplication;
 use App\Models\JobPost;
+use App\Services\Worker\WorkerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class WorkerController extends Controller
 {
     /**
-     * Worker Dashboard
+     * Worker Service.
+     */
+    public function __construct(private WorkerService $workerService) 
+    {
+        //
+    }
+
+    /**
+     * Worker Dashboard.
      */
     public function dashboard(): View
     {
-        $workerId = auth()->id();
-
-        $applicationsCount = JobApplication::where(
-            'worker_id',
-            $workerId
-        )->count();
-
-        $pendingApplicationsCount = JobApplication::where(
-            'worker_id',
-            $workerId
-        )
-            ->where('status', 'pending')
-            ->count();
-
-        $openJobsCount = JobPost::where('status', 'open')
-            ->where(function ($query) {
-                $query
-                    ->whereNull('deadline')
-                    ->orWhereDate('deadline', '>=', today());
-            })
-            ->count();
-
-        return view(
-            'worker.dashboard',compact(
-                'applicationsCount',
-                'pendingApplicationsCount',
-                'openJobsCount'
-            )
-        );
+        $data = $this->workerService->getDashboardData(auth()->id());
+        return view('worker.dashboard',$data);
     }
 
     /**
@@ -51,31 +32,8 @@ class WorkerController extends Controller
      */
     public function jobs(): View
     {
-        $workerId = auth()->id();
-
-        $jobPosts = JobPost::with('hall')
-            ->where('status', 'open')
-            ->where(function ($query) {
-                $query
-                    ->whereNull('deadline')
-                    ->orWhereDate('deadline', '>=', today());
-            })
-            ->latest()
-            ->get();
-
-        $appliedJobIds = JobApplication::where(
-            'worker_id',
-            $workerId
-        )
-            ->pluck('job_post_id')
-            ->toArray();
-
-        return view(
-            'worker.job-posts.index',compact(
-                'jobPosts',
-                'appliedJobIds'
-            )
-        );
+        $data = $this->workerService->getAvailableJobs(auth()->id());
+        return view('worker.job-posts.index',$data);
     }
 
     /**
@@ -83,26 +41,8 @@ class WorkerController extends Controller
      */
     public function showJob(JobPost $jobPost): View
     {
-        $workerId = auth()->id();
-
-        $hasApplied = JobApplication::where(
-            'job_post_id',
-            $jobPost->id
-        )
-            ->where(
-                'worker_id',
-                $workerId
-            )
-            ->exists();
-
-        $jobPost->load('hall');
-
-        return view(
-            'worker.job-posts.show',compact(
-                'jobPost',
-                'hasApplied'
-            )
-        );
+        $data = $this->workerService->getJobDetails($jobPost,auth()->id());
+        return view('worker.job-posts.show',$data);
     }
 
     /**
@@ -111,41 +51,19 @@ class WorkerController extends Controller
     public function apply(StoreJobApplicationRequest $request,JobPost $jobPost): RedirectResponse 
     {
         $workerId = auth()->id();
+        $error = $this->workerService->canApply($jobPost,$workerId);
 
-        if ($jobPost->status !== 'open') {
-            return back()
-                ->with('error', 'This job advertisement is closed.');
-        }
-
-        if (
-            $jobPost->deadline !== null &&
-            $jobPost->deadline->isBefore(today())
-        ) {
-            return back()
-                ->with('error','The application deadline has passed.');
-        }
-
-        $alreadyApplied = JobApplication::where('job_post_id',$jobPost->id)
-            ->where(
-                'worker_id',
-                $workerId
-            )
-            ->exists();
-
-        if ($alreadyApplied) {
-            return back()
-                ->with('error','You have already applied for this job.');
+        if ($error !== null) {
+            return back()->with('error', $error);
         }
 
         $validated = $request->validated();
 
-        JobApplication::create([
-            'job_post_id' => $jobPost->id,
-            'worker_id' => $workerId,
-            'message' => $validated['message'] ?? null,
-            'status' => 'pending',
-            'applied_at' => now(),
-        ]);
+        $this->workerService->applyForJob(
+            $jobPost,
+            $workerId,
+            $validated['message'] ?? null
+        );
 
         return redirect()->route('worker.applications.index')
             ->with('success','Your application has been submitted successfully.');
@@ -156,16 +74,7 @@ class WorkerController extends Controller
      */
     public function applications(): View
     {
-        $applications = JobApplication::with(['jobPost.hall',])
-            ->where(
-                'worker_id',
-                auth()->id()
-            )
-            ->latest('applied_at')
-            ->paginate(10);
-
-        return view(
-            'worker.applications.index',compact('applications')
-        );
+        $applications = $this->workerService->getApplications(auth()->id());
+        return view('worker.applications.index',compact('applications'));
     }
 }

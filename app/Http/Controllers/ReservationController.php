@@ -33,34 +33,47 @@ class ReservationController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view(
-            'customer.reservations.index',compact('reservations')
-        );
+        return view('customer.reservations.index',compact('reservations'));
+    }
+
+    /**
+     * Check whether the customer already has an active reservation.
+     */
+    private function hasActiveReservation(): bool
+    {
+        return Reservation::where('customer_id',auth()->id())
+            ->whereIn('status', [
+                'pending',
+                'confirmed',
+            ])
+            ->exists();
     }
 
     /**
      * Show the reservation form for a hall.
      */
-    public function create(Hall $hall): View
+    public function create(Hall $hall): View|RedirectResponse
     {
         abort_unless($hall->status === 'active', 404);
+
+        if ($this->hasActiveReservation()) {
+            return redirect()->route('customer.reservations.index')
+                ->with(
+                    'error',
+                    'You already have an active reservation. You can reserve another hall after your current reservation is cancelled or completed.'
+                );
+        }
 
         $hall->load([
             'foods.images',
             'sweetItems.images',
         ]);
 
-        $bookedReservations = Reservation::where(
-                'hall_id',
-                $hall->id
-            )
-            ->whereIn(
-                'status',
-                [
-                    'pending',
-                    'confirmed',
-                ]
-            )
+        $bookedReservations = Reservation::where('hall_id',$hall->id)
+            ->whereIn('status', [
+                'pending',
+                'confirmed',
+            ])
             ->get([
                 'id',
                 'reservation_date',
@@ -68,11 +81,7 @@ class ReservationController extends Controller
                 'end_time',
             ]);
 
-        return view(
-            'customer.reservations.create',compact(
-                'hall',
-                'bookedReservations'
-            )
+        return view('customer.reservations.create',compact('hall','bookedReservations')
         );
     }
 
@@ -85,85 +94,64 @@ class ReservationController extends Controller
 
         $validated = $request->validated();
 
+        if ($this->hasActiveReservation()) {
+            return redirect()->route('customer.reservations.index')
+                ->with(
+                    'error',
+                    'You already have an active reservation. You cannot reserve another hall until your current reservation is cancelled or completed.'
+                );
+        }
+
         if ($validated['guests'] > $hall->capacity) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'guests' =>'The number of guests cannot exceed the hall capacity.',
-                ]);
+                ->withErrors(['guests' => 'The number of guests cannot exceed the hall capacity.',]);
         }
 
         $foodIds = $validated['food_ids'] ?? [];
 
-        $foods = Food::whereIn(
-                'id',
-                $foodIds
-            )
-            ->where(
-                'hall_id',
-                $hall->id
-            )
+        $foods = Food::whereIn('id', $foodIds)
+            ->where('hall_id', $hall->id)
             ->get();
 
         if ($foods->count() !== count($foodIds)) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'food_ids' =>'One or more selected food items are invalid.',
-                ]);
+                ->withErrors(['food_ids' => 'One or more selected food items are invalid.',]);
         }
 
         $sweetIds = $validated['sweet_ids'] ?? [];
 
-        $sweets = Sweet::whereIn(
-                'id',
-                $sweetIds
-            )
-            ->where(
-                'hall_id',
-                $hall->id
-            )
+        $sweets = Sweet::whereIn('id', $sweetIds)
+            ->where('hall_id', $hall->id)
             ->get();
 
         if ($sweets->count() !== count($sweetIds)) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'sweet_ids' =>'One or more selected sweet items are invalid.',
-                ]);
+                ->withErrors(['sweet_ids' => 'One or more selected sweet items are invalid.',]);
         }
 
-        $alreadyBooked = Reservation::where(
-                'hall_id',
-                $hall->id
-            )
+        $alreadyBooked = Reservation::where('hall_id',$hall->id)
             ->whereDate(
-                'reservation_date',
-                $validated['reservation_date']
-            )
-            ->whereIn(
-                'status',
-                [
-                    'pending',
-                    'confirmed',
-                ]
-            )
+                'reservation_date',$validated['reservation_date']
+                )
+            ->whereIn('status', [
+                'pending',
+                'confirmed',
+            ])
             ->where(function ($query) use ($validated) {
                 $query
-                    ->where(
-                        'start_time','<',$validated['end_time']
-                    )
-                    ->where('end_time','>',$validated['start_time']
-                    );
+                    ->where('start_time','<',$validated['end_time'])
+
+                    ->where('end_time','>',$validated['start_time']);
             })
             ->exists();
 
         if ($alreadyBooked) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'reservation_date' =>'This hall is already reserved during the selected time.',
-                ]);
+                ->withErrors(['reservation_date' => 'This hall is already reserved during the selected time.',]);
         }
 
         $hallPrice = (float) $hall->price;
@@ -175,7 +163,7 @@ class ReservationController extends Controller
         $totalPrice = round($hallPrice + $foodTotal + $sweetTotal,2);
 
         $depositAmount = round($totalPrice * (self::DEPOSIT_PERCENTAGE / 100),2);
-
+        
         $reservation = DB::transaction(
             function () use (
                 $validated,
@@ -188,13 +176,13 @@ class ReservationController extends Controller
                 $reservation = Reservation::create([
                     'customer_id' => auth()->id(),
                     'hall_id' => $hall->id,
-                    'reservation_date' =>$validated['reservation_date'],
-                    'start_time' =>$validated['start_time'],
-                    'end_time' =>$validated['end_time'],
-                    'guests' =>$validated['guests'],
-                    'total_price' =>$totalPrice,
-                    'deposit_amount' =>$depositAmount,
-                    'status' =>'pending',
+                    'reservation_date' => $validated['reservation_date'],
+                    'start_time' => $validated['start_time'],
+                    'end_time' => $validated['end_time'],
+                    'guests' => $validated['guests'],
+                    'total_price' => $totalPrice,
+                    'deposit_amount' => $depositAmount,
+                    'status' => 'pending',
                 ]);
 
                 foreach ($foods as $food) {
@@ -222,7 +210,10 @@ class ReservationController extends Controller
         event(new ReservationCreated($reservation));
 
         return redirect()->route('customer.reservations.show',$reservation)
-            ->with('success','Reservation created successfully and is pending confirmation.');
+            ->with(
+                'success',
+                'Reservation created successfully and is pending confirmation.'
+            );
     }
 
     /**
@@ -239,21 +230,22 @@ class ReservationController extends Controller
             'payment',
         ]);
 
-        return view(
-            'customer.reservations.show',compact('reservation')
-        );
+        return view('customer.reservations.show',compact('reservation'));
     }
 
     /**
      * Show the form for editing food and sweets.
      */
-    public function editFoodSweets(Reservation $reservation): View 
+    public function editFoodSweets(Reservation $reservation): View|RedirectResponse 
     {
         abort_unless($reservation->customer_id === auth()->id(),403);
 
         if ($reservation->status !== 'pending') {
             return redirect()->route('customer.reservations.show',$reservation)
-                ->with('error','Food and sweets can only be updated while the reservation is pending.');
+                ->with(
+                    'error',
+                    'Food and sweets can only be updated while the reservation is pending.'
+                );
         }
 
         $reservation->load([
@@ -262,22 +254,16 @@ class ReservationController extends Controller
             'sweets',
         ]);
 
-        $foods = Food::where(
-                'hall_id',
-                $reservation->hall_id
-            )
+        $foods = Food::where('hall_id',$reservation->hall_id)
             ->with('images')
             ->get();
 
-        $sweets = Sweet::where(
-                'hall_id',
-                $reservation->hall_id
-            )
+        $sweets = Sweet::where('hall_id',$reservation->hall_id)
             ->with('images')
             ->get();
 
-        return view(
-            'customer.reservations.edit-food-sweets',compact(
+        return view('customer.reservations.edit-food-sweets',
+            compact(
                 'reservation',
                 'foods',
                 'sweets'
@@ -294,51 +280,37 @@ class ReservationController extends Controller
 
         if ($reservation->status !== 'pending') {
             return redirect()->route('customer.reservations.show',$reservation)
-                ->with('error','Food and sweets can only be updated while the reservation is pending.');
+                ->with(
+                    'error',
+                    'Food and sweets can only be updated while the reservation is pending.'
+                );
         }
 
         $validated = $request->validated();
 
-
         $foodIds = $validated['food_ids'] ?? [];
 
-        $foods = Food::whereIn(
-                'id',
-                $foodIds
-            )
-            ->where(
-                'hall_id',
-                $reservation->hall_id
-            )
+        $foods = Food::whereIn('id', $foodIds)
+            ->where('hall_id', $reservation->hall_id)
             ->get();
 
         if ($foods->count() !== count($foodIds)) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'food_ids' =>'One or more selected food items do not belong to this hall.',
-                ]);
+                ->withErrors(['food_ids' => 'One or more selected food items do not belong to this hall.',]);
         }
 
-
+        
         $sweetIds = $validated['sweet_ids'] ?? [];
 
-        $sweets = Sweet::whereIn(
-                'id',
-                $sweetIds
-            )
-            ->where(
-                'hall_id',
-                $reservation->hall_id
-            )
+        $sweets = Sweet::whereIn('id', $sweetIds)
+            ->where('hall_id', $reservation->hall_id)
             ->get();
 
         if ($sweets->count() !== count($sweetIds)) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'sweet_ids' =>'One or more selected sweet items do not belong to this hall.',
-                ]);
+                ->withErrors(['sweet_ids' => 'One or more selected sweet items do not belong to this hall.',]);
         }
 
         $hall = Hall::findOrFail($reservation->hall_id);
@@ -391,7 +363,10 @@ class ReservationController extends Controller
         );
 
         return redirect()->route('customer.reservations.show',$reservation)
-            ->with('success','Food and sweets updated successfully.');
+            ->with(
+                'success',
+                'Food and sweets updated successfully.'
+            );
     }
 
     /**
@@ -403,7 +378,10 @@ class ReservationController extends Controller
 
         if ($reservation->status !== 'pending') {
             return redirect()->route('customer.reservations.index')
-            ->with('error','Only pending reservations can be changed.');
+                ->with(
+                    'error',
+                    'Only pending reservations can be changed.'
+                );
         }
 
         $reservationDate = Carbon::parse($reservation->reservation_date)->startOfDay();
@@ -414,12 +392,13 @@ class ReservationController extends Controller
 
         if ($daysUntilReservation < 14) {
             return redirect()->route('customer.reservations.index')
-                ->with('error','You cannot change the reservation date less than 14 days in advance.');
+                ->with(
+                    'error',
+                    'You cannot change the reservation date less than 14 days in advance.'
+                );
         }
 
-        return view(
-            'customer.reservations.edit-date',compact('reservation')
-        );
+        return view('customer.reservations.edit-date',compact('reservation'));
     }
 
     /**
@@ -431,7 +410,10 @@ class ReservationController extends Controller
 
         if ($reservation->status !== 'pending') {
             return redirect()->route('customer.reservations.index')
-                ->with('error','Only pending reservations can be changed.');
+                ->with(
+                    'error',
+                    'Only pending reservations can be changed.'
+                );
         }
 
         $currentReservationDate = Carbon::parse($reservation->reservation_date)->startOfDay();
@@ -441,8 +423,12 @@ class ReservationController extends Controller
         $daysUntilReservation = $today->diffInDays($currentReservationDate,false);
 
         if ($daysUntilReservation < 14) {
-            return redirect()->route('customer.reservations.index')
-                ->with('error','You cannot change the reservation date less than 14 days in advance.');
+            return redirect()
+                ->route('customer.reservations.index')
+                ->with(
+                    'error',
+                    'You cannot change the reservation date less than 14 days in advance.'
+                );
         }
 
         $validated = $request->validated();
@@ -451,27 +437,24 @@ class ReservationController extends Controller
 
         if ($newDate->equalTo($currentReservationDate)) {
             return back()
-                ->withErrors([
-                    'reservation_date' =>'The new date must be different from the current reservation date.',
-                ])->withInput();
+                ->withInput()
+                ->withErrors(['reservation_date' => 'The new date must be different from the current reservation date.',]);
         }
 
         $conflictingReservation = Reservation::where('hall_id',$reservation->hall_id)
-            ->where('id','!=',$reservation->id)
+            ->where('id', '!=', $reservation->id)
             ->whereDate(
                 'reservation_date',
                 $newDate->format('Y-m-d')
             )
-            ->whereIn(
-                'status',
-                [
-                    'pending',
-                    'confirmed',
-                ]
-            )
+            ->whereIn('status', [
+                'pending',
+                'confirmed',
+            ])
             ->where(function ($query) use ($reservation) {
                 $query
                     ->where('start_time','<',$reservation->end_time)
+
                     ->where('end_time','>',$reservation->start_time);
             })
             ->exists();
@@ -479,14 +462,15 @@ class ReservationController extends Controller
         if ($conflictingReservation) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'reservation_date' =>'This date is already booked for this hall during the selected time.',
-                ]);
+                ->withErrors(['reservation_date' => 'This date is already booked for this hall during the selected time.',]);
         }
 
-        $reservation->update(['reservation_date' =>$newDate->format('Y-m-d'),]);
+        $reservation->update(['reservation_date' => $newDate->format('Y-m-d'),]);
 
         return redirect()->route('customer.reservations.index')
-            ->with('success','Reservation date updated successfully.');
+            ->with(
+                'success',
+                'Reservation date updated successfully.'
+            );
     }
 }
